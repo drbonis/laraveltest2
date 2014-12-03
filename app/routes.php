@@ -16,8 +16,6 @@ Route::get('/', function()
 	return View::make('hello');
 });
 
-Route::get('/prueba', function(){
-	$users = DB::table('users')->get();
-	return users;
-});
-Route::get('/about', 'PruebaController@about');
+
+
+Route::get('usuarios', 'UsuariosController@mostrarUsuarios');

@@ -55,8 +55,8 @@ return array(
 
 		'mysql' => array(
 			'driver'    => 'mysql',
-			'host'      => 'localhost',
-			'database'  => 'prueba',
+			'host'      => '127.0.0.1',
+			'database'  => 'cohedero-laravel',
 			'username'  => 'homestead',
 			'password'  => 'secret',
 			'charset'   => 'utf8',
