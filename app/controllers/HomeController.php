@@ -22,7 +22,8 @@ class HomeController extends BaseController {
         
         public function showLogin()
         {
-            return View::make('login');
+            $vardump = Auth::user();
+            return View::make('login')->with('vardump',$vardump);
         }
         
         public function doLogin() {
@@ -41,7 +42,7 @@ class HomeController extends BaseController {
                 );
                 
                 if(Auth::attempt($userdata)) {
-                    echo 'SUCCESS!';
+                    return Redirect::to('profile');
                 } else {
                     return Redirect::to('login');
                 }
