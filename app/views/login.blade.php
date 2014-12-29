@@ -4,9 +4,7 @@
         <title>Look at me Login</title>
     </head>
     <body>
-        <div id="var_dump">
-            {{var_dump($vardump)}}
-        </div>
+
         {{Form::open(array('url'=>'login'))}}
         <h1>Login</h1>
         
