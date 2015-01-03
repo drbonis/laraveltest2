@@ -60,7 +60,14 @@ class HomeController extends BaseController {
         }
         
         public function showProfile() {
-            return View::make('profile');
+            return View::make('profile', array("user"=>Auth::user()->email));
+        }
+        
+        public function showExam() {
+            return View::make('exam.show', array(
+                "user"=>Auth::user()->email,
+                "questions"=>Question::random()->take(4)->get()
+                    ));
         }
 
 }

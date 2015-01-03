@@ -20,3 +20,5 @@ Route::post('login',array('uses'=>'HomeController@doLogin'));
 Route::get('profile',array('before'=>'auth','uses'=>'HomeController@showProfile'));
 
 Route::get('logout',array('uses'=>'HomeController@doLogout'));
+
+Route::get('exam/show', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
