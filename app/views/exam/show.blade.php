@@ -11,6 +11,7 @@
             Examen: 
 
             @foreach($questions as $question)
+            <pre>{{var_dump($question)}}</pre>
                 <p>{{$question->question}}</p>
                 <ol>
                     <li>{{$question->option1}}</li>

@@ -66,8 +66,8 @@ class HomeController extends BaseController {
         public function showExam() {
             return View::make('exam.show', array(
                 "user"=>Auth::user()->email,
-                "questions"=>Question::random()->take(4)->get()
-                    ));
+                "questions"=>Exam::all()
+                ));
         }
 
 }

@@ -20,7 +20,9 @@ class Concept extends Eloquent {
          
          public function children() {
              return $this->belongsToMany('Concept', 'conconrels', 'parentaui', 'aui');
-             
          }
 
+         public function questions() {
+             return $this->belongsToMany('Concept');
+         }
 }

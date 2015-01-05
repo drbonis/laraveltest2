@@ -23,5 +23,13 @@ class Question extends Eloquent {
         public function exams() {
             return $this->belongsToMany('Exam');
         }
+        
+        public function answers() {
+            return $this->belongsToMany('Answer');
+        }
+        
+        public function concepts() {
+            return $this->belongsToMane('Concepts');
+        }
 
 }

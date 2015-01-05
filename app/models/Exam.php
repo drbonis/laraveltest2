@@ -18,5 +18,9 @@ class Exam extends Eloquent {
         public function questions() {
             $this->belongsToMany('Question');
         }
+        
+        public function answers() {
+            $this->belongsToMany('Answer');
+        }
 
 }
