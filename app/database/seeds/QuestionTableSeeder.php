@@ -2,118 +2,39 @@
 
 class QuestionTableSeeder extends Seeder 
 {
+
     public function run()
     {
+        
+        
+            $rand_string = "";
+            for ($j=0;$j<mt_rand(30,200);$j++) {
+                for ($i=0;$i<mt_rand(3,15);$i++) {
+                    $rand_string=$rand_string.chr(mt_rand( 97 ,122 ));            
+                };
+                $rand_string = $rand_string." ";
+            };
+            $rand_string = $rand_string."\n";
+        
+        
+        
         DB::table('questions')->delete();
-        Question::create(array(
-            'question' => 'Texto de la primera pregunta',
-            'option1' => 'Opcion primera. *',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 1
-        ));
+        $i = 0;
+        while($i < 600) {
+            Question::create(array(
+                'question'=> substr($rand_string,mt_rand(0,30),mt_rand(30,50)),
+                'option1'=> substr($rand_string,mt_rand(0,30),mt_rand(30,50)),
+                'option2'=> substr($rand_string,mt_rand(0,30),mt_rand(30,50)),
+                'option3'=> substr($rand_string,mt_rand(0,30),mt_rand(30,50)),
+                'option4'=> substr($rand_string,mt_rand(0,30),mt_rand(30,50)),
+                'option5'=> substr($rand_string,mt_rand(0,30),mt_rand(30,50)),
+                'numoptions'=>5,
+                'answer'=>mt_rand(1,5)
+
+            ));
+            $i++;
+        }
         
-        Question::create(array(
-            'question' => 'Texto de la segunda pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro *',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 4
-        ));
-        
-        Question::create(array(
-            'question' => 'Texto de la tercera pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro *',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 4
-        ));        
-        
-        Question::create(array(
-            'question' => 'Texto de la cuarta pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro *',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 4
-        ));        
-
-        Question::create(array(
-            'question' => 'Texto de la quinta pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro *',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 4
-        ));        
-
-        Question::create(array(
-            'question' => 'Texto de la sexta pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro *',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 4
-        ));        
-
-        Question::create(array(
-            'question' => 'Texto de la séptima pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda *',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro ',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 2
-        ));
-
-        Question::create(array(
-            'question' => 'Texto de la octava pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro *',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 4
-        ));        
-
-        Question::create(array(
-            'question' => 'Texto de la novena pregunta',
-            'option1' => 'Opcion primera',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro',
-            'option5' => 'Opción quinta *',
-            'numoptions' => 5,
-            'answer' => 5
-        ));        
-
-        Question::create(array(
-            'question' => 'Texto de la décima pregunta',
-            'option1' => 'Opcion primera *',
-            'option2' => 'Opción segunda',
-            'option3' => 'Opción tercera',
-            'option4' => 'Opción cuatro',
-            'option5' => 'Opción quinta',
-            'numoptions' => 5,
-            'answer' => 1
-        ));        
         
     }
 }

@@ -19,5 +19,9 @@ class Question extends Eloquent {
         {
             return $query->orderBy(DB::raw('RAND()'));
         }
+        
+        public function exams() {
+            return $this->belongsToMany('Exam');
+        }
 
 }
