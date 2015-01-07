@@ -64,9 +64,10 @@ class HomeController extends BaseController {
         }
         
         public function showExam() {
+            // shows the exam
             return View::make('exam.show', array(
                 "user"=>Auth::user()->email,
-                "questions"=>Exam::all()
+                "questions"=>DB::select('select * from questions, exams_questions where questions.id = exams_questions.question_id and exams_questions.exam_id = ? order by questions.id;',array(1))
                 ));
         }
 
