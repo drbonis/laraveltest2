@@ -17,8 +17,16 @@ Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 Route::get('login',array('uses'=>'HomeController@showLogin'));
 Route::post('login',array('uses'=>'HomeController@doLogin'));
 
-Route::get('profile',array('before'=>'auth','uses'=>'HomeController@showProfile'));
+
 
 Route::get('logout',array('uses'=>'HomeController@doLogout'));
 
-Route::get('exam/show', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
+Route::get('user/profile',array('before'=>'auth','uses'=>'HomeController@showProfile'));
+
+Route::get('user/new',array('uses'=>'HomeController@showNewUser'));
+
+Route::get('exam/list', array('before'=>'auth', 'uses'=>'HomeController@listExam'));
+
+Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
+
+Route::post('exam/show', array('uses'=>'HomeController@doExam'));

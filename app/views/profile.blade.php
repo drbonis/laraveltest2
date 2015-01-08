@@ -9,8 +9,8 @@
         <div>
             Usuario: {{$user}}
         </div>
-        <a href="./exam/show">Make exam</a>
-        <a href="./logout">Logout</a>
+        <a href="/exam/list">Hacer un examen</a>
+        <a href="/logout">Logout</a>
     </body>
 </html>
 

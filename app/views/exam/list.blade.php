@@ -46,25 +46,15 @@
     <div class="container">
       <!-- Example row of columns -->
       <div class="row">
- 
+
         <div class="col-md-12">
             <div>
                 Usuario: {{$user}}
-                <h1>Examen</h1> 
-                {{Form::open(array('url'=>'/exam/show'))}}
-                    
-                    @foreach($questions as $index => $question)
-                        <p>{{$index+1}}.- {{$question->question}}</p>
-                        <ul>
-                            <li>{{Form::radio($question->id,1)}} a) {{$question->option1}}</li>
-                            <li>{{Form::radio($question->id,2)}} b) {{$question->option2}}</li>
-                            <li>{{Form::radio($question->id,3)}} c) {{$question->option3}}</li>
-                            <li>{{Form::radio($question->id,4)}} d) {{$question->option4}}</li>
-                            <li>{{Form::radio($question->id,5)}} e) {{$question->option5}}</li>
-                        </ul>
-                    @endforeach
-                {{Form::submit('Enviar')}}
-                {{Form::close()}}
+                <h1>Lista de exámenes</h1> 
+
+                @foreach($exams as $index => $exam)
+                <p>{{$index+1}}.- <a href="/exam/show/{{$exam->id}}">{{$exam->shortname}}</a>: {{$exam->description}}</p>
+                @endforeach
             </div>
         </div>
 

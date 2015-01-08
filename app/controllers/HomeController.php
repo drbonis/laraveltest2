@@ -47,7 +47,7 @@ class HomeController extends BaseController {
                 );
                 
                 if(Auth::attempt($userdata)) {
-                    return Redirect::to('profile');
+                    return Redirect::to('user/profile');
                 } else {
                     return Redirect::to('login');
                 }
@@ -58,17 +58,42 @@ class HomeController extends BaseController {
             Auth::logout();
             return Redirect::to('login');
         }
+
+        public function showNewUser() {
+            if (Auth::check()) {
+                // user is logged, first logout
+                return Redirect::to('logout');
+            } else {
+                // validate form and create new user
+                
+                return View::make('user.new');
+            }
+        }
+        
         
         public function showProfile() {
             return View::make('profile', array("user"=>Auth::user()->email));
         }
         
-        public function showExam() {
+        public function listExam() {
+            return View::make('exam.list', array(
+                "user"=>Auth::user()->email,
+                "exams"=>DB::select('select * from exams order by created_at;')
+                ));
+            
+        }
+        
+        public function showExam($exam_id) {
+
             // shows the exam
             return View::make('exam.show', array(
                 "user"=>Auth::user()->email,
-                "questions"=>DB::select('select * from questions, exams_questions where questions.id = exams_questions.question_id and exams_questions.exam_id = ? order by questions.id;',array(1))
+                "questions"=>DB::select('select * from questions, exams_questions where questions.id = exams_questions.question_id and exams_questions.exam_id = ? order by questions.id;',array($exam_id))
                 ));
+        }
+        
+        public function doExam() {
+            return var_dump(Input::all());
         }
 
 }

@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
     <head>
-        <title>Look at me Login</title>
+        <title>Nuevo usuario</title>
     </head>
     <body>
 
-        {{Form::open(array('url'=>'login'))}}
-        <h1>Login</h1>
+        {{Form::open(array('url'=>'new'))}}
+        <h1>Alta de usuario</h1>
         
         <p>
             {{$errors->first('email') }}
@@ -24,11 +24,11 @@
         </p>
         
         <p>
-            {{ Form::submit('Submit!') }}</p>
+            {{ Form::submit('Crear cuenta!') }}</p>
         </p>
         {{ Form::close() }}
         
-        <a href="/user/new">Darse de alta</a>
+        <a href="/login">Ya tengo cuenta</a>
     </body>
 </html>
 
