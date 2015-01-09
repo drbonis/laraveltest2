@@ -88,11 +88,24 @@ class HomeController extends BaseController {
             // shows the exam
             return View::make('exam.show', array(
                 "user"=>Auth::user()->email,
-                "questions"=>DB::select('select * from questions, exams_questions where questions.id = exams_questions.question_id and exams_questions.exam_id = ? order by questions.id;',array($exam_id))
+                "questions"=>DB::select('select * from questions, exams_questions where questions.id = exams_questions.question_id and exams_questions.exam_id = ? order by questions.id;',array($exam_id)),
+                "exam_id"=>$exam_id
                 ));
         }
         
         public function doExam() {
+            $answers = Input::all();
+            $exam_id = $answers["exam_id"];
+
+            foreach ($answers as $key => $answer) {
+                if (is_int($key)) {
+                    $correct_option = DB::select('select * from questions where id = ?',array($key))[0]->answer;
+                    
+                    DB::insert('insert into answers (exam_id, question_id, user_id, answered, correct_answer) values (?,?,?,?,?)',array($exam_id, $key, Auth::user()->id, $answer, $correct_option));
+                  
+                    echo "<pre>pregunta ".$key." respuesta ".$answer." correcta ".var_dump($correct_option)."<pre>";
+                }
+            }
             return var_dump(Input::all());
         }
 

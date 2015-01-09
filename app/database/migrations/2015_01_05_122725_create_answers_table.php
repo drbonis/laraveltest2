@@ -20,8 +20,8 @@ class CreateAnswersTable extends Migration {
                 $table->integer('question_id')->unsigned();
                 $table->integer('user_id')->unsigned();
                 $table->timestamps();
-                $table->integer('option');
-                $table->integer('correct_option');
+                $table->integer('answered');
+                $table->integer('correct_answer');
                 
                 $table->foreign('exam_id')->references('id')->on('exams');
                 $table->foreign('question_id')->references('id')->on('questions');
