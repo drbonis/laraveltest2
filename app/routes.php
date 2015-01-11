@@ -30,3 +30,17 @@ Route::get('exam/list', array('before'=>'auth', 'uses'=>'HomeController@listExam
 Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
 
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
+
+
+Route::get('concept/show', array('uses'=>'HomeController@showConcept'));
+
+
+Route::get('concept/getdata',function(){
+    $data = DB::select("select * from terms where str LIKE ?",array("%".Input::get('term')."%"));
+    $result = array();
+    foreach ($data as $term) {
+        $result[] = $term->str;
+    }
+    return Response::json($result);
+
+});

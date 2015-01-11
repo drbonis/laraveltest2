@@ -29,7 +29,7 @@ class Question extends Eloquent {
         }
         
         public function concepts() {
-            return $this->belongsToMane('Concepts');
+            return $this->belongsToMany('Concepts');
         }
 
 }

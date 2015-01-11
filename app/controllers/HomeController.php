@@ -108,5 +108,9 @@ class HomeController extends BaseController {
             }
             return var_dump(Input::all());
         }
+        
+        public function showConcept() {
+            return View::make('concept.show');
+        }
 
 }
