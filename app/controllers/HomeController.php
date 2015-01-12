@@ -96,13 +96,16 @@ class HomeController extends BaseController {
         public function doExam() {
             $answers = Input::all();
             $exam_id = $answers["exam_id"];
-
+            $user_id = Auth::user()->id;
+            DB::insert('insert into executions (exam_id, user_id) values (?,?)', array($exam_id, $user_id ));
+            $new_execution_id = DB::getPdo()->LastInsertId();
+            var_dump($new_execution_id);
             foreach ($answers as $key => $answer) {
                 if (is_int($key)) {
                     $correct_option = DB::select('select * from questions where id = ?',array($key))[0]->answer;
                     
-                    DB::insert('insert into answers (exam_id, question_id, user_id, answered, correct_answer) values (?,?,?,?,?)',array($exam_id, $key, Auth::user()->id, $answer, $correct_option));
-                  
+                    DB::insert('insert into answers (exam_id, execution_id, question_id, user_id, answered, correct_answer) values (?, ?,?,?,?,?)',array($exam_id, $new_execution_id, $key, $user_id, $answer, $correct_option));
+                    
                     echo "<pre>pregunta ".$key." respuesta ".$answer." correcta ".var_dump($correct_option)."<pre>";
                 }
             }

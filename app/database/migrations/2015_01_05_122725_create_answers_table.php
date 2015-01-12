@@ -15,7 +15,8 @@ class CreateAnswersTable extends Migration {
 		//
             Schema::create('answers', function(Blueprint $table)
             {
-                $table->increments('id');     
+                $table->increments('id');    
+                $table->integer('execution_id')->unsigned();
                 $table->integer('exam_id')->unsigned();
                 $table->integer('question_id')->unsigned();
                 $table->integer('user_id')->unsigned();
@@ -23,6 +24,7 @@ class CreateAnswersTable extends Migration {
                 $table->integer('answered');
                 $table->integer('correct_answer');
                 
+                $table->foreign('execution_id')->references('id')->on('execution');
                 $table->foreign('exam_id')->references('id')->on('exams');
                 $table->foreign('question_id')->references('id')->on('questions');
                 $table->foreign('user_id')->references('id')->on('users');
