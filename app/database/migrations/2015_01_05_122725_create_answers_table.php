@@ -24,10 +24,10 @@ class CreateAnswersTable extends Migration {
                 $table->integer('answered');
                 $table->integer('correct_answer');
                 
-                $table->foreign('execution_id')->references('id')->on('execution');
-                $table->foreign('exam_id')->references('id')->on('exams');
-                $table->foreign('question_id')->references('id')->on('questions');
-                $table->foreign('user_id')->references('id')->on('users');
+                //$table->foreign('execution_id')->references('id')->on('executions');
+                //$table->foreign('exam_id')->references('id')->on('exams');
+                //$table->foreign('question_id')->references('id')->on('questions');
+                //$table->foreign('user_id')->references('id')->on('users');
             });
 	}
 

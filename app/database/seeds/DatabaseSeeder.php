@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder {
                 
                 $this->call('TermTableSeeder');
                 
-                $this->call('ExamTableSeeder');
+                //$this->call('ExamTableSeeder'); //integrated now in QuestionTableSeeder
 	}
 
 }

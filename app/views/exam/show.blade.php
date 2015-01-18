@@ -56,16 +56,17 @@
                     @foreach($questions as $index => $question)
                         <p>{{$index+1}}.- {{$question->question}}</p>
                         <ul>
-                            <li>{{Form::radio($question->id,1)}} a) {{$question->option1}}</li>
-                            <li>{{Form::radio($question->id,2)}} b) {{$question->option2}}</li>
-                            <li>{{Form::radio($question->id,3)}} c) {{$question->option3}}</li>
-                            <li>{{Form::radio($question->id,4)}} d) {{$question->option4}}</li>
-                            <li>{{Form::radio($question->id,5)}} e) {{$question->option5}}</li>
+                            <li>{{Form::radio($question->question_id,1)}} a) {{$question->option1}}</li>
+                            <li>{{Form::radio($question->question_id,2)}} b) {{$question->option2}}</li>
+                            <li>{{Form::radio($question->question_id,3)}} c) {{$question->option3}}</li>
+                            <li>{{Form::radio($question->question_id,4)}} d) {{$question->option4}}</li>
+                            <li>{{Form::radio($question->question_id,5)}} e) {{$question->option5}}</li>
                         </ul>
                     @endforeach
                     {{Form::hidden('exam_id',$exam_id)}}
                 {{Form::submit('Enviar')}}
                 {{Form::close()}}
+                {{var_dump($questions)}}
             </div>
         </div>
 

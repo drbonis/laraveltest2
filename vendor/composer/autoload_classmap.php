@@ -37,7 +37,7 @@ return array(
     'CreateConconrelsTable' => $baseDir . '/app/database/migrations/2015_01_03_222921_create_conconrels_table.php',
     'CreateExamsQuestionsTable' => $baseDir . '/app/database/migrations/2015_01_04_233538_create_exams_questions_table.php',
     'CreateExamsTable' => $baseDir . '/app/database/migrations/2015_01_04_232559_create_exams_table.php',
-    'CreateExecutionsTable' => $baseDir . '/app/database/migrations/2015_01_11_215026_create_executions_table.php',
+    'CreateExecutionsTable' => $baseDir . '/app/database/migrations/2015_01_18_153929_create_executions_table.php',
     'CreateQuestionsTable' => $baseDir . '/app/database/migrations/2014_12_30_214315_create_questions_table.php',
     'CreateTermsTable' => $baseDir . '/app/database/migrations/2015_01_03_222502_create_terms_table.php',
     'CreateUsersTable' => $baseDir . '/app/database/migrations/2014_12_22_232541_create_users_table.php',
