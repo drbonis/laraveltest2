@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateConconrelsTable extends Migration {
+class CreateConceptsConceptsTable extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -12,7 +12,7 @@ class CreateConconrelsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('conconrels', function(Blueprint $table)
+		Schema::create('concepts_concepts', function(Blueprint $table)
 		{
 			$table->increments('id');
 			$table->timestamps();
@@ -31,7 +31,7 @@ class CreateConconrelsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('conconrels');
+		Schema::drop('concepts_concepts');
 	}
 
 }

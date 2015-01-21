@@ -15,5 +15,8 @@ class Term extends Eloquent {
 	 * @var array
 	 */
         
+        function concepts() {
+            $this->belongsTo('Concept');
+        }
 
 }

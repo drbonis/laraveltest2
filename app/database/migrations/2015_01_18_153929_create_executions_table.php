@@ -13,6 +13,15 @@ class CreateExecutionsTable extends Migration {
 	public function up()
 	{
 		//
+            
+            Schema::create('executions', function(Blueprint $table)
+            {
+                $table->increments('id');    
+                $table->integer('exam_id')->unsigned();
+                $table->integer('user_id')->unsigned();
+                $table->timestamps();
+
+            });
 	}
 
 	/**
@@ -23,6 +32,7 @@ class CreateExecutionsTable extends Migration {
 	public function down()
 	{
 		//
+            Schema::drop('executions');
 	}
 
 }

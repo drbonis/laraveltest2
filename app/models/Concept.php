@@ -15,11 +15,11 @@ class Concept extends Eloquent {
 	 * @var array
 	 */
          public function parents() {
-             return $this->belongsToMany('Concept', 'conconrels', 'aui', 'parentaui');
+             return $this->belongsToMany('Concept', 'concept_concept', 'aui', 'parentaui');
          }
          
          public function children() {
-             return $this->belongsToMany('Concept', 'conconrels', 'parentaui', 'aui');
+             return $this->belongsToMany('Concept', 'concept_concept', 'parentaui', 'aui');
          }
 
          public function questions() {

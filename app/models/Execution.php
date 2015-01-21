@@ -14,7 +14,7 @@ class Execution extends Eloquent {
 	 *
 	 * @var array
 	 */
-        /*
+        
         public function exams() {
             $this->belongsTo('Exam');
         }
@@ -22,7 +22,7 @@ class Execution extends Eloquent {
         public function answers() {
             $this->belongsToMany('Answer');
         }
-         */
+        
          
 
 }

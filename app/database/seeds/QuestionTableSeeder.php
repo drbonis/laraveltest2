@@ -54,19 +54,24 @@ class QuestionTableSeeder extends Seeder
         $rows = file('./app/database/seeds/questions/questions.csv');
         
         foreach($rows as $row) {
-            $colums = explode("|",strip($row));
-            Question::create(array(
-                'question'=>$columns[1],
-                'option1'=>$colums[2],
-                'option2'=>$colums[3],
-                'option3'=>$colums[4],
-                'option4'=>$colums[5],
-                'option5'=>$colums[6],
-                'numoptions'=>5,
-                'answer'=>$columns[7]
-            ));
-            $new_question_id = DB::getPdo()->LastInsertId();
-            DB::insert('insert into exams_questions (exam_id, question_id) values (?, ?)', array($exam_id_ref[$columns[8]], $new_question_id));
+            //echo $row."\n";
+            $columns = explode("|",trim($row));
+            
+            if(array_key_exists($columns[8],$exam_id_ref)) {
+                //var_dump(array($columns[8],$exam_id_ref[$columns[8]]));
+                Question::create(array(
+                    'question'=>$columns[1],
+                    'option1'=>$columns[2],
+                    'option2'=>$columns[3],
+                    'option3'=>$columns[4],
+                    'option4'=>$columns[5],
+                    'option5'=>$columns[6],
+                    'numoptions'=>5,
+                    'answer'=>$columns[7]
+                ));
+                $new_question_id = DB::getPdo()->LastInsertId();
+                DB::insert('insert into exams_questions (exam_id, question_id) values (?, ?)', array($exam_id_ref[$columns[8]], $new_question_id));
+            }
         }
         
     }
