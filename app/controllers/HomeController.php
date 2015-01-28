@@ -76,7 +76,7 @@ class HomeController extends BaseController {
             $results_select = DB::select('select * from answers where user_id = ?',array($user_id));
             
             $results = array();
-
+            $results_concept = array();
             
             foreach($results_select as $select_item) {
                 
@@ -105,7 +105,7 @@ class HomeController extends BaseController {
                 
                 
                 $results_concept_select = DB::select('select answers.question_id, answered, correct_answer, concept_id, cui, aui, meshcode, str from answers inner join concepts_questions on answers.question_id = concepts_questions.`question_id` inner join concepts on concepts_questions.concept_id = concepts.id where user_id = ?',array($user_id));
-                $results_concept = array();
+                
                 
                 
                 foreach ($results_concept_select as $concept_item) {
@@ -140,7 +140,8 @@ class HomeController extends BaseController {
             return View::make('profile', array(
                 "user"=>Auth::user()->email,
                 "results"=>$results,
-                "results_concept"=>$results_concept));
+                "results_concept"=>$results_concept
+                    ));
         }
         
         public function listExam() {

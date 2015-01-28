@@ -15,9 +15,9 @@ class DatabaseSeeder extends Seeder {
                 
                 $this->call('QuestionTableSeeder');
                 
-                //$this->call('ConceptTableSeeder');
+                $this->call('ConceptTableSeeder');
                 
-                //$this->call('TermTableSeeder');
+                $this->call('TermTableSeeder');
                 
                 //$this->call('ExamTableSeeder'); //integrated now in QuestionTableSeeder
 	}
