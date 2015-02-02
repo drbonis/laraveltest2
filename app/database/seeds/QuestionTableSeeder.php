@@ -71,6 +71,12 @@ class QuestionTableSeeder extends Seeder
                 ));
                 $new_question_id = DB::getPdo()->LastInsertId();
                 DB::insert('insert into exams_questions (exam_id, question_id) values (?, ?)', array($exam_id_ref[$columns[8]], $new_question_id));
+                
+                $rand_concepts = DB::table('concepts')->orderBy(DB::raw('RAND()'))->take(5)->get();
+                foreach ($rand_concepts as $concept) {
+                   DB::insert('insert into concepts_questions (concept_id, question_id) values (?, ?)', array($concept->id, $new_question_id)); 
+                }
+                
             }
         }
         

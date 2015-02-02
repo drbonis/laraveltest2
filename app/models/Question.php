@@ -15,9 +15,9 @@ class Question extends Eloquent {
 	 * @var array
 	 */
         
-        public function scopeRandom($query)
+        public function scopeRandom($query, $size)
         {
-            return $query->orderBy(DB::raw('RAND()'));
+            return $query->orderBy(DB::raw('RAND()'))->take($size);
         }
         
         public function exams() {

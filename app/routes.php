@@ -11,6 +11,8 @@
 |
 */
 
+Route::get('sandbox', array('uses'=>'HomeController@sandbox'));
+
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 
 

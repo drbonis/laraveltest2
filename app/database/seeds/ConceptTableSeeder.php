@@ -29,7 +29,7 @@ class ConceptTableSeeder extends Seeder
             $rows = file($filename);
             foreach($rows as $row) {
                 $columns = explode("|", $row);
-                echo $row;
+                //echo $row;
                 DB::insert('insert into concepts_concepts (cui, aui, parentaui, auihier, meshhier) values (?, ?, ?, ?, ?)', 
                     array($columns[0], $columns[1], $columns[3], $columns[6], $columns[7]));
             }

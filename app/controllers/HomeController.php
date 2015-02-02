@@ -15,6 +15,17 @@ class HomeController extends BaseController {
 	|
 	*/
 
+    
+        public function sandbox() {
+            $rand_concepts = DB::table('concepts')->orderBy(DB::raw('RAND()'))->take(5)->get();
+            $results = "";
+            foreach ($rand_concepts as $concept) {
+               $results = $results.$concept->id;
+            }
+            
+            return var_dump($results);
+        }
+    
 	public function showWelcome()
 	{
 		return View::make('hello');
