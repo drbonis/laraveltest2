@@ -101,52 +101,46 @@ class HomeController extends BaseController {
                 
                 if(array_key_exists($select_item->question_id,$results)) {
                     $results[$select_item->question_id]['done'] ++;
-                    $results[$select_item->question_id]['right'] = $results[$select_item->exam_id]['right'] + $right;
-                    $results[$select_item->question_id]['wrong'] = $results[$select_item->exam_id]['wrong'] + $wrong;
+                    $results[$select_item->question_id]['right'] += $right;
+                    $results[$select_item->question_id]['wrong'] += $wrong;
                 } else {
-                    /*
-                    $results[$select_item->exam_id]['done'] = 1;
-                    $results[$select_item->exam_id]['right'] = $results[$select_item->exam_id]['right'] + $right;
-                    $results[$select_item->exam_id]['wrong'] = $results[$select_item->exam_id]['wrong'] + $wrong;
-                */
                     $results[$select_item->question_id] = array("done"=> 1,
                         "right"=> $right,
                         "wrong"=> $wrong);
                 }
-                
-                
-                $results_concept_select = DB::select('select answers.question_id, answered, correct_answer, concept_id, cui, aui, meshcode, str from answers inner join concepts_questions on answers.question_id = concepts_questions.`question_id` inner join concepts on concepts_questions.concept_id = concepts.id where user_id = ?',array($user_id));
-                
-                
-                
-                foreach ($results_concept_select as $concept_item) {
-                    if($concept_item->answered == $concept_item->correct_answer) {
-                        $right = 1;
-                        $wrong = 0;
-                    } else {
-                        $right = 0;
-                        $wrong = 1;
-                    }
-                    
-                    if(array_key_exists($concept_item->concept_id, $results_concept)) {
-                        $results_concept[$concept_item->concept_id]['done'] ++;
-                        $results_concept[$concept_item->concept_id]['right'] = $results_concept[$concept_item->concept_id]['right'] + $right;
-                        $results_concept[$concept_item->concept_id]['wrong'] = $results_concept[$concept_item->concept_id]['wrong'] + $wrong;
-                        
-                    } else {
-                        $results_concept[$concept_item->concept_id] = array(
-                            "cui"=>$concept_item->cui,
-                            "aui"=>$concept_item->aui,
-                            "meshcode"=>$concept_item->meshcode,
-                            "str"=>$concept_item->str,
-                            "done"=>1,
-                            "right"=>$right,
-                            "wrong"=>$wrong
-                        );
-                    }
+            }    
+
+            
+            $results_concept_select = DB::select('select answers.question_id, answered, correct_answer, concept_id, cui, aui, meshcode, str from answers inner join concepts_questions on answers.question_id = concepts_questions.`question_id` inner join concepts on concepts_questions.concept_id = concepts.id where user_id = ?',array($user_id));
+
+            foreach ($results_concept_select as $concept_item) {
+                if($concept_item->answered == $concept_item->correct_answer) {
+                    $c_right = 1;
+                    $c_wrong = 0;
+                } else {
+                    $c_right = 0;
+                    $c_wrong = 1;
                 }
- 
+
+                if(array_key_exists($concept_item->concept_id, $results_concept)) {
+                    $results_concept[$concept_item->concept_id]['done'] ++;
+                    $results_concept[$concept_item->concept_id]['right'] += $c_right;
+                    $results_concept[$concept_item->concept_id]['wrong'] += $c_wrong;
+
+                } else {
+                    $results_concept[$concept_item->concept_id] = array(
+                        "cui"=>$concept_item->cui,
+                        "aui"=>$concept_item->aui,
+                        "meshcode"=>$concept_item->meshcode,
+                        "str"=>$concept_item->str,
+                        "done"=>1,
+                        "right"=>$c_right,
+                        "wrong"=>$c_wrong
+                    );
+                }
             }
+ 
+            
             
             return View::make('profile', array(
                 "user"=>Auth::user()->email,

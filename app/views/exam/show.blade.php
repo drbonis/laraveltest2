@@ -66,7 +66,7 @@
                     {{Form::hidden('exam_id',$exam_id)}}
                 {{Form::submit('Enviar')}}
                 {{Form::close()}}
-                {{var_dump($questions)}}
+
             </div>
         </div>
 
