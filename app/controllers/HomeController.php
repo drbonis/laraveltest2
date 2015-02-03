@@ -23,9 +23,40 @@ class HomeController extends BaseController {
                $results = $results.$concept->id;
             }
             
-            return var_dump($results);
+            return View::make('sandbox',array('results'=>$results));
         }
     
+        public function sandboxjson($mytext) {
+            
+            function getCUI($text){
+                $r = DB::table('terms')->where("str","=",$text)->take(1)->get();
+                $rcui = $r[0]->cui;
+                return $rcui;
+                
+            }
+            
+            
+            $r = str_word_count($mytext,1,'àáéèíìóòúù');
+            
+            $output = array();
+            
+            
+            $maxsize = count($r)+1;
+            $size = count($r)+1;
+            while ($size>1) {
+                $origin = 0;
+                while($size+$origin<=$maxsize) {
+                    $output[] = array_slice($r, $origin, $size-1);
+                    $origin++;
+                }
+                $size--;
+            }
+            
+            return json_encode(array($output,count($r),count($output)));
+            
+        }
+        
+        
 	public function showWelcome()
 	{
 		return View::make('hello');
