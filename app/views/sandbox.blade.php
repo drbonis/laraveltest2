@@ -27,9 +27,7 @@
     <script>
         $("#form").submit(function(e){
             e.preventDefault();
-            $("#taggedText").html($("#texto").val());
-
-            
+            $("#taggedText").html($("#texto").val());  
         });
     </script>  
     

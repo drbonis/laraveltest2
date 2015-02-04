@@ -17,13 +17,9 @@ class HomeController extends BaseController {
 
     
         public function sandbox() {
-            $rand_concepts = DB::table('concepts')->orderBy(DB::raw('RAND()'))->take(5)->get();
-            $results = "";
-            foreach ($rand_concepts as $concept) {
-               $results = $results.$concept->id;
-            }
+
             
-            return View::make('sandbox',array('results'=>$results));
+            return View::make('sandbox');
         }
     
         public function sandboxjson($mytext) {
@@ -36,23 +32,55 @@ class HomeController extends BaseController {
             }
             
             
-            $r = str_word_count($mytext,1,'àáéèíìóòúù');
+            //$r = str_word_count($mytext,1,'àáéèíìóòúù');
             
-            $output = array();
+            $r = explode(" ",str_replace([",",".","¿","?","¡","!","#","$","&","/","(",")",";",":","*","{","}","<",">","="]," ",$mytext));
+            
+            //remove repeated spaces
+            $r2 = array();
+            foreach($r as $word) {
+                if($word!=""){
+                    $r2[] = $word;
+                }
+            }
+            $r = $r2;
+            
+            
+            $word_list = array();
             
             
             $maxsize = count($r)+1;
-            $size = count($r)+1;
+            $size = min([count($r)+1,10]);
             while ($size>1) {
                 $origin = 0;
                 while($size+$origin<=$maxsize) {
-                    $output[] = array_slice($r, $origin, $size-1);
+                    $word_list[] = array_slice($r, $origin, $size-1);
                     $origin++;
                 }
                 $size--;
             }
             
-            return json_encode(array($output,count($r),count($output)));
+            $list_to_search = array();
+
+            foreach($word_list as $word_set) {
+                $str_to_search = "";
+                foreach($word_set as $word) {
+                    $str_to_search = $str_to_search." ".$word;
+                }
+                $str_to_search = trim($str_to_search);
+                $list_to_search[] = $str_to_search;
+            }
+            
+            $output = array();
+            foreach($list_to_search as $search_str) {
+                $db_output = DB::table('terms')->where("str","=",$search_str)->take(1)->get();
+                if(count($db_output)>0) {
+                    $output[] = $db_output;
+                };
+            }
+           
+            
+            return json_encode($output);
             
         }
         
