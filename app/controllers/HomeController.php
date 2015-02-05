@@ -18,70 +18,13 @@ class HomeController extends BaseController {
     
         public function sandbox() {
 
-            
-            return View::make('sandbox');
+            $mytext = "Angina de pecho";
+            return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
     
         public function sandboxjson($mytext) {
             
-            function getCUI($text){
-                $r = DB::table('terms')->where("str","=",$text)->take(1)->get();
-                $rcui = $r[0]->cui;
-                return $rcui;
-                
-            }
-            
-            
-            //$r = str_word_count($mytext,1,'àáéèíìóòúù');
-            
-            $r = explode(" ",str_replace([",",".","¿","?","¡","!","#","$","&","/","(",")",";",":","*","{","}","<",">","="]," ",$mytext));
-            
-            //remove repeated spaces
-            $r2 = array();
-            foreach($r as $word) {
-                if($word!=""){
-                    $r2[] = $word;
-                }
-            }
-            $r = $r2;
-            
-            
-            $word_list = array();
-            
-            
-            $maxsize = count($r)+1;
-            $size = min([count($r)+1,10]);
-            while ($size>1) {
-                $origin = 0;
-                while($size+$origin<=$maxsize) {
-                    $word_list[] = array_slice($r, $origin, $size-1);
-                    $origin++;
-                }
-                $size--;
-            }
-            
-            $list_to_search = array();
-
-            foreach($word_list as $word_set) {
-                $str_to_search = "";
-                foreach($word_set as $word) {
-                    $str_to_search = $str_to_search." ".$word;
-                }
-                $str_to_search = trim($str_to_search);
-                $list_to_search[] = $str_to_search;
-            }
-            
-            $output = array();
-            foreach($list_to_search as $search_str) {
-                $db_output = DB::table('terms')->where("str","=",$search_str)->take(1)->get();
-                if(count($db_output)>0) {
-                    $output[] = $db_output;
-                };
-            }
-           
-            
-            return json_encode($output);
-            
+            return json_encode(array());
         }
         
         
