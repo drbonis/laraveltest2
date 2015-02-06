@@ -127,7 +127,7 @@ class HomeController extends BaseController {
             }    
 
             
-            $results_concept_select = DB::select('select answers.question_id, answered, correct_answer, concept_id, cui, aui, meshcode, str from answers inner join concepts_questions on answers.question_id = concepts_questions.`question_id` inner join concepts on concepts_questions.concept_id = concepts.id where user_id = ?',array($user_id));
+            $results_concept_select = DB::select('select answers.question_id, answered, correct_answer, concepts.cui, concepts.aui, concepts.meshcode, concepts.str from answers inner join concepts_questions on answers.question_id = concepts_questions.`question_id` inner join concepts on concepts_questions.cui = concepts.cui where user_id = ?',array($user_id));
 
             foreach ($results_concept_select as $concept_item) {
                 if($concept_item->answered == $concept_item->correct_answer) {

@@ -42,7 +42,7 @@ class QuestionTableSeeder extends Seeder
                 //$rand_concepts = DB::table('concepts')->orderBy(DB::raw('RAND()'))->take(5)->get();
                 $question_concepts = json_decode(medquizlib::getConceptsFromText($columns[1]." ".$columns[2]." ".$columns[3]." ".$columns[4]." ".$columns[5]." ".$columns[6]));
                 foreach ($question_concepts as $concept) {
-                   DB::insert('insert into concepts_questions (term_id, question_id, cui) values (?, ?, ?)', array($concept->id, $new_question_id, $concept->cui)); 
+                   DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui) values (?, ?, ?)', array($concept->concept_id, $concept->term_id, $new_question_id, $concept->cui)); 
                 }
                 
             }

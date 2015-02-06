@@ -16,6 +16,7 @@ class CreateConceptsQuestionsTable extends Migration {
             Schema::create('concepts_questions', function(Blueprint $table)
             {
                 $table->increments('id');     
+                $table->integer('concept_id')->unsigned();
                 $table->integer('term_id')->unsigned();
                 $table->integer('question_id')->unsigned();
                 $table->string('cui',8);

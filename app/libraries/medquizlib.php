@@ -68,7 +68,8 @@ class medquizlib {
             
             $output = array();
             foreach($list_to_search as $search_str) {
-                $db_output = DB::table('terms')->where("str","=",$search_str)->take(1)->get();
+                $db_output = DB::select("SELECT terms.id AS term_id, terms.cui AS cui, terms.aui AS aui, terms.meshcode AS meshcode, concepts.id AS concept_id FROM homestead.terms, homestead.concepts where terms.str = ? AND terms.cui = concepts.cui",array($search_str));
+                //$db_output = DB::table('terms')->where("str","=",$search_str)->take(1)->get();
                 if(count($db_output)>0) {
                     $output[] = $db_output[0];
                 };

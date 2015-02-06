@@ -17,9 +17,9 @@ class CreateConceptsConceptsTable extends Migration {
 			$table->increments('id');
 			$table->timestamps();
                         $table->string('cui',8);
-                        $table->string('aui',8);
-                        $table->string('parentaui',8);
-                        $table->string('auihier',320);
+                        $table->string('aui',8)->index();
+                        $table->string('parentaui',8)->index();
+                        $table->string('auihier',320)->index();
                         $table->string('meshhier',320);
 		});
 	}

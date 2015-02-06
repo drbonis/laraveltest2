@@ -19,7 +19,7 @@ class CreateTermsTable extends Migration {
                         $table->string('cui',8);
                         $table->string('aui',8);
                         $table->string('meshcode',8);
-                        $table->string('str',320);
+                        $table->string('str',320)->index();
 		});
 	}
 

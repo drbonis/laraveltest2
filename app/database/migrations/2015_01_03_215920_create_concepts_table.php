@@ -16,7 +16,7 @@ class CreateConceptsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->timestamps();
-                        $table->string('cui',8);
+                        $table->string('cui',8)->index();
                         $table->string('aui',8);
                         $table->string('meshcode',8);
                         $table->string('str',320);
