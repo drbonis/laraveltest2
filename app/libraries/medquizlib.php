@@ -16,15 +16,18 @@ class medquizlib {
     static function holamundo() {
         return "hola mundo";
     }
+    /*
+    private function getCUI($text){
+        $r = DB::table('terms')->where("str","=",$text)->take(1)->get();
+        $rcui = $r[0]->cui;
+        return $rcui;
+
+    }
+    */
     
     static function getConceptsFromText($mytext) {
             //gets the list of concepts that are included in the text
-            function getCUI($text){
-                $r = DB::table('terms')->where("str","=",$text)->take(1)->get();
-                $rcui = $r[0]->cui;
-                return $rcui;
-                
-            }
+
 
             $r = explode(" ",str_replace([",",".","¿","?","¡","!","#","$","&","/","(",")",";",":","*","{","}","<",">","="]," ",$mytext));
             
@@ -42,7 +45,7 @@ class medquizlib {
             
             
             $maxsize = count($r)+1;
-            $size = min([count($r)+1,10]);
+            $size = min([count($r)+1,3]);
             while ($size>1) {
                 $origin = 0;
                 while($size+$origin<=$maxsize) {
@@ -67,7 +70,7 @@ class medquizlib {
             foreach($list_to_search as $search_str) {
                 $db_output = DB::table('terms')->where("str","=",$search_str)->take(1)->get();
                 if(count($db_output)>0) {
-                    $output[] = $db_output;
+                    $output[] = $db_output[0];
                 };
             }
             return json_encode($output);

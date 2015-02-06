@@ -22,9 +22,23 @@ class HomeController extends BaseController {
             return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
     
-        public function sandboxjson($mytext) {
+        public function sandboxjson() {
+            $r1 = Question::find(1);
+            $r2 = $r1['question']." ".$r1['option1']." ".$r1['option2']." ".$r1['option3']." ".$r1['option4'].$r1['option5'];
+            $r3 = json_decode(medquizlib::getConceptsFromText($r2));
+            $r = "";
             
-            return json_encode(array());
+            foreach ($r3 as $concept) {
+                    $r = $r."\n".$concept->str;
+                }
+            /*
+            $question_concepts = medquizlib::getConceptsFromText($columns[1]." ".$columns[2]." ".$columns[3]." ".$columns[4]." ".$columns[5]." ".$columns[6]);
+                foreach ($question_concepts as $concept) {
+                   DB::insert('insert into concepts_questions (concept_id, question_id) values (?, ?)', array($concept->id, $new_question_id)); 
+                }
+             * 
+             */
+            return json_encode($r3);
         }
         
         
