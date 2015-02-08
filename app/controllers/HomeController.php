@@ -23,29 +23,27 @@ class HomeController extends BaseController {
         }
     
         public function sandboxjson() {
-            $r1 = Question::find(1);
-            $r2 = $r1['question']." ".$r1['option1']." ".$r1['option2']." ".$r1['option3']." ".$r1['option4'].$r1['option5'];
-            $r3 = json_decode(medquizlib::getConceptsFromText($r2));
-            $r = "";
+            $results = array();
+
+            //$r1 = Concept::where('cui','=','C0751843')->take(1)->get();
+            $r = DB::select('select concepts_concepts.auihier, concepts_concepts.cui, concepts.str from concepts_concepts, concepts where concepts.cui = concepts_concepts.cui and concepts.str LIKE ? LIMIT 10',array('%guillain%'));
             
-            foreach ($r3 as $concept) {
-                    $r = $r."\n".$concept->str;
+            foreach($r as $r_item) {
+                var_dump($r_item->str);
+                var_dump($r_item->auihier);
+                $aui_list = explode(".",$r_item->auihier);
+                var_dump($aui_list);
+                foreach ($aui_list as $aui_item) {
+                    
+                    $t = DB::select('select cui, str from concepts where aui = ? ',array($aui_item));
+                    var_dump(array($aui_item, $t));
+                    $results[] = $t;
                 }
-            /*
-            $question_concepts = medquizlib::getConceptsFromText($columns[1]." ".$columns[2]." ".$columns[3]." ".$columns[4]." ".$columns[5]." ".$columns[6]);
-                foreach ($question_concepts as $concept) {
-                   DB::insert('insert into concepts_questions (concept_id, question_id) values (?, ?)', array($concept->id, $new_question_id)); 
-                }
-             * 
-             */
-            return json_encode($r3);
+            }
+            
+            return json_encode($results);
+            
         }
-        
-        
-	public function showWelcome()
-	{
-		return View::make('hello');
-	}
         
         public function showLogin()
         {
