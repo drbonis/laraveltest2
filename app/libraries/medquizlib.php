@@ -13,17 +13,7 @@
  */
 class medquizlib {
     //put your code here
-    static function holamundo() {
-        return "hola mundo";
-    }
-    /*
-    private function getCUI($text){
-        $r = DB::table('terms')->where("str","=",$text)->take(1)->get();
-        $rcui = $r[0]->cui;
-        return $rcui;
 
-    }
-    */
     
     static function getConceptsFromText($mytext) {
             //gets the list of concepts that are included in the text
@@ -77,6 +67,43 @@ class medquizlib {
             return json_encode($output);
         }
     
-    
+        static function getDescendants($cui) {
+            /*given a cui returns a list of array(cui,str) that are descendants of cui*/
+            $r = DB::select('select distinct aui from terms where cui = ?', array($cui));
+            $children_cuis = array();
+            foreach($r as $term) {
+                $children = DB::select('select distinct concepts.cui as cui, concepts.str as str from concepts left join concepts_concepts ON concepts.cui = concepts_concepts.cui where concepts_concepts.auihier like ? group by concepts_concepts.cui;',array("%".$term->aui."%"));
+                foreach($children as $child) {
+                    if(!in_array($child->cui, $children_cuis)) {
+                        $children_cuis[] = array("cui"=>$child->cui, "str"=>$child->str);
+                    }
+                }
+            }
+            return json_encode($children_cuis);
+        }
+        
+        static function getQuestions($cui) {
+            /*given a cui returns the list of questions (question_id) that 
+             includes this cui or its descendants*/
+            $final_list = array();
+            $this_list = DB::select('select distinct question_id from concepts_questions where cui =?',array($cui));
+            foreach ($this_list as $this_element) {
+                if(!in_array($this_element->question_id, $final_list)) {
+                    $final_list[] = $this_element->question_id;
+                }
+            }
+            $descendants = json_decode(medquizlib::getDescendants($cui));
+            foreach($descendants as $descendant) {
+                $this_list = DB::select('select distinct question_id from concepts_questions where cui =?',array($descendant->cui));
+                foreach ($this_list as $this_element) {
+                    if(!in_array($this_element->question_id, $final_list)) {
+                        $final_list[] = $this_element->question_id;
+                    }
+                }
+            }
+            return json_encode($final_list);
+        }
+        
+        
     
 }

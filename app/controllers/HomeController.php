@@ -21,7 +21,7 @@ class HomeController extends BaseController {
             $mytext = "Angina de pecho";
             return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
-    
+    /*
         public function sandboxjson() {
             $results = array();
 
@@ -44,6 +44,14 @@ class HomeController extends BaseController {
             return json_encode($results);
             
         }
+     */   
+        public function sandboxjson($cui) {
+           $l = DB::select('select concepts.cui, concepts.str, count(concepts_questions.id) as contaje from concepts_questions, concepts where concepts.cui = concepts_questions.cui group by concepts_questions.cui order by contaje desc');
+           foreach($l as $concept) {
+               $this_questions = count(medquizlib::getQuestions($concept->cui));
+               var_dump(array("cui"=>$concept->cui, "str"=>$concept->str, "question_num"=>$this_questions));
+           }
+       }
         
         public function showLogin()
         {
