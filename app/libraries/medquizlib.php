@@ -29,11 +29,8 @@ class medquizlib {
                 }
             }
             $r = $r2;
-            
-            
-            $word_list = array();
-            
-            
+
+            $word_list = array();            
             $maxsize = count($r)+1;
             $size = min([count($r)+1,3]);
             while ($size>1) {
@@ -59,7 +56,6 @@ class medquizlib {
             $output = array();
             foreach($list_to_search as $search_str) {
                 $db_output = DB::select("SELECT terms.id AS term_id, terms.cui AS cui, terms.aui AS aui, terms.meshcode AS meshcode, concepts.id AS concept_id FROM homestead.terms, homestead.concepts where terms.str = ? AND terms.cui = concepts.cui",array($search_str));
-                //$db_output = DB::table('terms')->where("str","=",$search_str)->take(1)->get();
                 if(count($db_output)>0) {
                     $output[] = $db_output[0];
                 };
@@ -104,6 +100,10 @@ class medquizlib {
             return json_encode($final_list);
         }
         
-        
+        static function getChildren($cui) {
+            /*from a cui returns the list of first degree descendants (children)*/
+            $r = DB::select('select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = ? group by con.cui, con.str order by con.str;',array($cui));
+            return json_encode($r);
+        }        
     
 }

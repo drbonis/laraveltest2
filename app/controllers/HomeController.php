@@ -21,37 +21,14 @@ class HomeController extends BaseController {
             $mytext = "Angina de pecho";
             return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
-    /*
-        public function sandboxjson() {
-            $results = array();
-
-            //$r1 = Concept::where('cui','=','C0751843')->take(1)->get();
-            $r = DB::select('select concepts_concepts.auihier, concepts_concepts.cui, concepts.str from concepts_concepts, concepts where concepts.cui = concepts_concepts.cui and concepts.str LIKE ? LIMIT 10',array('%guillain%'));
-            
-            foreach($r as $r_item) {
-                var_dump($r_item->str);
-                var_dump($r_item->auihier);
-                $aui_list = explode(".",$r_item->auihier);
-                var_dump($aui_list);
-                foreach ($aui_list as $aui_item) {
-                    
-                    $t = DB::select('select cui, str from concepts where aui = ? ',array($aui_item));
-                    var_dump(array($aui_item, $t));
-                    $results[] = $t;
-                }
-            }
-            
-            return json_encode($results);
-            
-        }
-     */   
+  
         public function sandboxjson($cui) {
-           $l = DB::select('select concepts.cui, concepts.str, count(concepts_questions.id) as contaje from concepts_questions, concepts where concepts.cui = concepts_questions.cui group by concepts_questions.cui order by contaje desc');
-           foreach($l as $concept) {
-               $this_questions = count(medquizlib::getQuestions($concept->cui));
-               var_dump(array("cui"=>$concept->cui, "str"=>$concept->str, "question_num"=>$this_questions));
-           }
-       }
+            $r = DB::select('select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = ? group by con.cui, con.str order by con.str;',array($cui));
+            return json_encode($r);
+            
+            //select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = 'C0005944' group by con.cui, con.str order by con.str;
+            //select c_c.parentaui, c_c.aui, c_c.cui, t.aui as t_aui, t.cui, t.str from concepts_concepts as c_c left join terms as t on t.aui = c_c.parentaui where c_c.cui = 'C0027612';
+        }
         
         public function showLogin()
         {
