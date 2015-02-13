@@ -55,6 +55,7 @@
                     
                     @foreach($questions as $index => $question)
                         <p>{{$index+1}}.- {{$question->question}}</p>
+                        <span style="display:none">{{Form::radio($question->question_id,0, true)}}</span>
                         <ul>
                             <li>{{Form::radio($question->question_id,1)}} a) {{$question->option1}}</li>
                             <li>{{Form::radio($question->question_id,2)}} b) {{$question->option2}}</li>

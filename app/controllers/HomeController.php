@@ -22,12 +22,28 @@ class HomeController extends BaseController {
             return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
   
-        public function sandboxjson($cui) {
-            $r = DB::select('select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = ? group by con.cui, con.str order by con.str;',array($cui));
-            return json_encode($r);
+        public function sandboxjson($question_id, $user_id) {
+            /*
+             * selecciona una pregunta junto con datos sobre:
+             *  - cuanta gente ha respondido / acertado / fallado / blanco
+             *  - cuantas veces la ha respondido el usuario acertado / fallado / blanco
+             *  - historial de las veces respondidas por el usuario (serie temporal)
+             *  - lista de conceptos contenidas en esta pregunta
+             *  - lista de examenes en los que esta incluida la pregunta
+             *  - lista de preguntas similares en base a los conceptos
+             *  - lista de comentarios asociados a esa pregunta
+             * 
+             * 
+             * select  question_id, SUM(answered = correct_answer) as aciertos, COUNT(answered) as respuestas, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) as blanco from answers GROUP BY question_id;
+             * 
+             */
             
-            //select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = 'C0005944' group by con.cui, con.str order by con.str;
-            //select c_c.parentaui, c_c.aui, c_c.cui, t.aui as t_aui, t.cui, t.str from concepts_concepts as c_c left join terms as t on t.aui = c_c.parentaui where c_c.cui = 'C0027612';
+            $r = DB::select('select user_id, question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id));
+            var_dump(array($user_id, $question_id));
+            var_dump($r);
+            
+            return json_encode($r);
+        
         }
         
         public function showLogin()

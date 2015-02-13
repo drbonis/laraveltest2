@@ -104,6 +104,7 @@ class medquizlib {
             /*from a cui returns the list of first degree descendants (children)*/
             $r = DB::select('select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = ? group by con.cui, con.str order by con.str;',array($cui));
             return json_encode($r);
-        }        
+        }
+        
     
 }
