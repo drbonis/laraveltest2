@@ -37,11 +37,13 @@ class HomeController extends BaseController {
              * select  question_id, SUM(answered = correct_answer) as aciertos, COUNT(answered) as respuestas, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) as blanco from answers GROUP BY question_id;
              * 
              */
+            $r = array();
             
-            $r = DB::select('select user_id, question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id));
-            var_dump(array($user_id, $question_id));
-            var_dump($r);
-            
+            $r['question_id'] = $question_id;
+            $r['question'] = DB::select('select * FROM questions WHERE id = ?',array($question_id));
+            $r['user_answers'] = DB::select('select user_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id))[0];
+            $r['all_answers'] = DB::select('select SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE question_id = ? GROUP BY question_id',array($question_id))[0];
+            $r['exams'] = DB::select('SELECT exams.id, exams.shortname, exams.longname, exams.description FROM exams, exams_questions WHERE exams_questions.question_id = ? AND exams_questions.exam_id = exams.id', array($question_id));
             return json_encode($r);
         
         }
