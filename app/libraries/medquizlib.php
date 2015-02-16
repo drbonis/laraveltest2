@@ -106,5 +106,15 @@ class medquizlib {
             return json_encode($r);
         }
         
-    
+        static function getAnswersFromQuestion($question_id, $user_id = null) {
+            if($user_id != null) {
+                    $r= DB::select('select user_id, question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id));    
+            } else {
+                    $r= DB::select('select question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE question_id = ? GROUP BY question_id',array($question_id));
+                    $r[0]->user_id = "";
+            }
+            return $r;
+            
+            
+        }
 }

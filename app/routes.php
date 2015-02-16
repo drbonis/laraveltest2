@@ -13,7 +13,7 @@
 
 Route::get('sandbox', array('uses'=>'HomeController@sandbox'));
 //Route::get('sandbox/json/', array('uses'=>'HomeController@sandboxjson'));
-Route::get('sandbox/json/{question_id}/{user_id}',array('uses'=>'HomeController@sandboxjson'));
+Route::get('sandbox/json/{question_id}/{user_id?}',array('uses'=>'HomeController@sandboxjson'));
 
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 

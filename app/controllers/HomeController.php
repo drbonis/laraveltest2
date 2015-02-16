@@ -38,8 +38,12 @@ class HomeController extends BaseController {
              * 
              */
             
-            $r = DB::select('select user_id, question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id));
-            var_dump(array($user_id, $question_id));
+            $r = array();
+            $r['user_id'] = $user_id;
+            $r['question_id'] = $question_id;
+            $r['answers_from_user'] = medquizlib::getAnswersFromQuestion($question_id, $user_id)[0];
+            $r['answers_from_all'] = medquizlib::getAnswersFromQuestion($question_id)[0];
+
             var_dump($r);
             
             return json_encode($r);
