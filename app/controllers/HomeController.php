@@ -45,13 +45,46 @@ class HomeController extends BaseController {
             $r['question_id'] = $question_id;
             $r['answers_from_user'] = medquizlib::getAnswersFromQuestion($question_id, $user_id)[0];
             $r['answers_from_all'] = medquizlib::getAnswersFromQuestion($question_id)[0];
-
-            var_dump($r);
             $r['question'] = DB::select('select * FROM questions WHERE id = ?',array($question_id));
-            $r['user_answers'] = DB::select('select user_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id))[0];
-            $r['all_answers'] = DB::select('select SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE question_id = ? GROUP BY question_id',array($question_id))[0];
+            $r['concepts'] = DB::select('select concepts.id, concepts.cui, concepts.str FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id',array($question_id));
             $r['exams'] = DB::select('SELECT exams.id, exams.shortname, exams.longname, exams.description FROM exams, exams_questions WHERE exams_questions.question_id = ? AND exams_questions.exam_id = exams.id', array($question_id));
-            return json_encode($r);
+            
+            $concepts_list = array();
+            foreach($r['concepts'] as $concept_element) {
+                $concepts_list[] = $concept_element->cui;
+            }
+            sort($concepts_list);
+            var_dump($concepts_list);
+            $my_questions_list = array();
+            
+            foreach($r['concepts'] as $concept_element) {
+                $questions = json_decode(medquizlib::getQuestions($concept_element->cui));
+
+                foreach($questions as $my_question_id) {
+                    if(!in_array($my_question_id, $my_questions_list)) {
+                        $my_questions_list[] = $my_question_id;
+                    }
+                }
+                
+            }
+            sort($my_questions_list);
+            
+            $my_final_questions_list = array();
+            foreach($my_questions_list as $my_question_id) {
+                $my_final_questions_list[$my_question_id] = 0;
+                $concepts_of_my_question = DB::select('select concepts.cui FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id',array($my_question_id));
+                
+                foreach($concepts_of_my_question as $my_concept) {
+                    //var_dump(medquizlib::getDescendants($my_concept->cui));
+                    if(in_array($my_concept->cui, $concepts_list)) {
+                        $my_final_questions_list[$my_question_id] ++;
+                    }
+                }
+            }
+            arsort($my_final_questions_list);
+            var_dump($my_final_questions_list);
+            var_dump($r);
+            //return json_encode($r);
         
         }
         
