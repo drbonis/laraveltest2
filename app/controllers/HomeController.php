@@ -22,7 +22,11 @@ class HomeController extends BaseController {
             return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
   
-        public function sandboxjson($question_id, $user_id) {
+        public function sandboxjson($cui) {
+            return json_encode(medquizlib::getFreqOfConcept($cui));
+        }
+        
+        public function sandboxjson2($question_id, $user_id) {
             /*
              * selecciona una pregunta junto con datos sobre:
              *  - cuanta gente ha respondido / acertado / fallado / blanco
@@ -38,15 +42,12 @@ class HomeController extends BaseController {
              * 
              */
             $r = array();
-            
-
-            $r = array();
             $r['user_id'] = $user_id;
             $r['question_id'] = $question_id;
             $r['answers_from_user'] = medquizlib::getAnswersFromQuestion($question_id, $user_id)[0];
             $r['answers_from_all'] = medquizlib::getAnswersFromQuestion($question_id)[0];
             $r['question'] = DB::select('select * FROM questions WHERE id = ?',array($question_id));
-            $r['concepts'] = DB::select('select concepts.id, concepts.cui, concepts.str FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id',array($question_id));
+            $r['concepts'] = DB::select('select concepts.id, concepts.cui, concepts.str FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id GROUP BY concepts.id',array($question_id));
             $r['exams'] = DB::select('SELECT exams.id, exams.shortname, exams.longname, exams.description FROM exams, exams_questions WHERE exams_questions.question_id = ? AND exams_questions.exam_id = exams.id', array($question_id));
             
             $concepts_list = array();
@@ -54,7 +55,7 @@ class HomeController extends BaseController {
                 $concepts_list[] = $concept_element->cui;
             }
             sort($concepts_list);
-            var_dump($concepts_list);
+
             $my_questions_list = array();
             
             foreach($r['concepts'] as $concept_element) {
@@ -72,19 +73,19 @@ class HomeController extends BaseController {
             $my_final_questions_list = array();
             foreach($my_questions_list as $my_question_id) {
                 $my_final_questions_list[$my_question_id] = 0;
-                $concepts_of_my_question = DB::select('select concepts.cui FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id',array($my_question_id));
+                $concepts_of_my_question = DB::select('select concepts.cui FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id GROUP BY concepts.cui',array($my_question_id));
                 
                 foreach($concepts_of_my_question as $my_concept) {
-                    //var_dump(medquizlib::getDescendants($my_concept->cui));
+
                     if(in_array($my_concept->cui, $concepts_list)) {
                         $my_final_questions_list[$my_question_id] ++;
                     }
                 }
             }
             arsort($my_final_questions_list);
-            var_dump($my_final_questions_list);
-            var_dump($r);
-            //return json_encode($r);
+            $r['related_questions'] = $my_final_questions_list;
+            return "<pre>".json_encode($r)."</pre>";
+
         
         }
         

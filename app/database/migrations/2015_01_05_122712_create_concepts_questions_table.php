@@ -16,10 +16,10 @@ class CreateConceptsQuestionsTable extends Migration {
             Schema::create('concepts_questions', function(Blueprint $table)
             {
                 $table->increments('id');     
-                $table->integer('concept_id')->unsigned();
-                $table->integer('term_id')->unsigned();
-                $table->integer('question_id')->unsigned();
-                $table->string('cui',8);
+                $table->integer('concept_id')->unsigned()->index();
+                $table->integer('term_id')->unsigned()->index();
+                $table->integer('question_id')->unsigned()->index();
+                $table->string('cui',8)->index();
                 $table->timestamps();
                 
                 //$table->foreign('concept_id')->references('id')->on('concepts');

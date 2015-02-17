@@ -120,5 +120,17 @@ class medquizlib {
             return $r;    
         }
         
+        static function getFreqOfConcept($cui) {
+            /* from a given cui calculate the proportion of questions
+             * that have this exact concept and the proportion of
+             * questions that have this concept or any descendant
+             */
+            
+            $questions_with_concept = DB::select('SELECT question_id FROM concepts_questions WHERE cui = ? GROUP BY concepts_questions.question_id ORDER BY question_id', array($cui));
+            $questions_with_concept_count = count($questions_with_concept);
+            $questions_total = DB::select('SELECT COUNT(*) AS count FROM questions')[0];
+            
+            return $questions_with_concept_count / (int) $questions_total->count;
+        }
         
 }
