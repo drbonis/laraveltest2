@@ -61,76 +61,261 @@ class medquizlib {
                 };
             }
             return json_encode($output);
-        }
+    }
     
-        static function getDescendants($cui) {
-            /*given a cui returns a list of array(cui,str) that are descendants of cui*/
-            $r = DB::select('select distinct aui from terms where cui = ?', array($cui));
-            $children_cuis = array();
-            foreach($r as $term) {
-                $children = DB::select('select distinct concepts.cui as cui, concepts.str as str from concepts left join concepts_concepts ON concepts.cui = concepts_concepts.cui where concepts_concepts.auihier like ? group by concepts_concepts.cui;',array("%".$term->aui."%"));
-                foreach($children as $child) {
-                    if(!in_array($child->cui, $children_cuis)) {
-                        $children_cuis[] = array("cui"=>$child->cui, "str"=>$child->str);
+    static function getDescendants($cui) {
+        /*given a cui returns a list of array(cui,str) that are descendants of cui*/
+        $r = DB::select('select distinct aui from terms where cui = ?', array($cui));
+        $children_cuis = array();
+        $children_cuis_ref = array();
+        foreach($r as $term) {
+            $children = DB::select('select distinct concepts.cui as cui, concepts.str as str from concepts left join concepts_concepts ON concepts.cui = concepts_concepts.cui where concepts_concepts.auihier like ? group by concepts_concepts.cui;',array("%".$term->aui."%"));
+            foreach($children as $child) {
+                if(!in_array($child->cui, $children_cuis_ref)) {
+                    $children_cuis_ref[] = $child->cui;
+                    $children_cuis[] = array("cui"=>$child->cui, "str"=>$child->str);
+                }
+            }
+        }
+        return json_encode($children_cuis);
+    }
+    
+    static function getAscendants($cui) {
+        /*given a cui returns a list of all its ascendants*/
+        $rel_list = DB::select('select auihier from concepts_concepts where cui = ? ',array($cui));
+        $aui_parents_list = array();
+        foreach ($rel_list as $rel) {
+            $explode_auihier = explode(".", $rel->auihier);
+            foreach ($explode_auihier as $new_aui) {
+                if(!in_array($new_aui, $aui_parents_list)) {
+                    $aui_parents_list[] = $new_aui;
+                }
+            }
+        }
+
+        $ascendants_cuis = array();
+        $ascendants_cuis_ref = array();
+        foreach($aui_parents_list as $new_aui) {
+            $new_cui = DB::select('select cui, str from terms where aui = ?',array($new_aui));
+
+            if(count($new_cui)>0) {
+                if(!in_array($new_cui[0]->cui, $ascendants_cuis_ref)) {
+                    $ascendants_cuis_ref[] = $new_cui[0]->cui;
+                    $ascendants_cuis[] = array("cui"=>$new_cui[0]->cui, "str"=>$new_cui[0]->str);
+                }
+            }
+        }
+        return json_encode($ascendants_cuis);
+        
+    }
+        
+
+        
+    static function getChildren($cui) {
+        /*from a cui returns the list of first degree descendants (children)*/
+        $r = DB::select('select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = ? group by con.cui, con.str order by con.str;',array($cui));
+        return json_encode($r);
+    }
+        
+    static function getAnswersFromQuestion($question_id, $user_id = null) {
+        if($user_id != null) {
+                $r= DB::select('select user_id, question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id));    
+        } else {
+                $r= DB::select('select question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE question_id = ? GROUP BY question_id',array($question_id));
+                if(count($r)==0) {$r[0] = new stdClass();};
+                $r[0]->user_id = "";
+        }
+        if(count($r)==0) {
+            $r[] = "";
+        }
+        return $r;    
+    }
+        
+    static function getFreqOfConcept($cui) {
+        /* from a given cui calculate the proportion of questions
+         * that have this exact concept 
+         */
+
+        $questions_with_concept = DB::select('SELECT question_id FROM concepts_questions WHERE cui = ? GROUP BY concepts_questions.question_id ORDER BY question_id', array($cui));
+        $questions_with_concept_count = count($questions_with_concept);
+        $questions_total = DB::select('SELECT COUNT(*) AS count FROM questions')[0];
+
+        $freq = $questions_with_concept_count / (int) $questions_total->count;
+        return json_encode($freq);
+    }
+    
+    static function getQuestionsFromConcept($cui) {
+        /* given a cui returns a json:
+         * [
+         *  'direct': [cui1,cui2...],
+         *  'descendants': [cui1, cui2, cui3...]
+         * ]
+         * 
+         * direct includes all the questions that have $cui concept
+         * descendants includes all the questions that have any descendant of $cui
+         */
+
+        $direct_list = array();
+        $direct_query = DB::select('select distinct question_id from concepts_questions where cui = ? order by question_id;',array($cui));
+        if(count($direct_query)>0) {
+            foreach($direct_query as $direct_query_row) {
+                $direct_list[] = $direct_query_row->question_id;
+            }
+        } 
+        
+        
+        $descendants_list = array();
+        $descendants_cui_list = json_decode(medquizlib::getDescendants($cui));
+
+        if(count($descendants_cui_list)>0) {
+            foreach($descendants_cui_list as $descendants_cui_list_element) {
+                
+                $descendants_query = DB::select('select distinct question_id from concepts_questions where cui = ? order by question_id;',array($descendants_cui_list_element->cui));
+
+                if(count($descendants_query)>0) {
+                    
+                    foreach($descendants_query as $descendants_query_row) {
+
+                        if(!in_array($descendants_query_row->question_id,$descendants_list)){
+                            $descendants_list[] = $descendants_query_row->question_id;
+                        }
+                        
                     }
                 }
             }
-            return json_encode($children_cuis);
         }
-        
-        static function getQuestions($cui) {
-            /*given a cui returns the list of questions (question_id) that 
-             includes this cui or its descendants*/
-            $final_list = array();
-            $this_list = DB::select('select distinct question_id from concepts_questions where cui =?',array($cui));
-            foreach ($this_list as $this_element) {
-                if(!in_array($this_element->question_id, $final_list)) {
-                    $final_list[] = $this_element->question_id;
+        $r = new stdClass();
+        $r->direct = $direct_list;
+        $r->descendant = $descendants_list;
+        $r = array();
+        //$r['a'] = "asdf";
+        $r = ["direct"=>$direct_list, "descendant"=>$descendants_list];
+        //return json_encode($r);
+        return json_encode($r);
+    }
+    
+    static function getConceptsFromQuestion($question_id) {
+        /*
+         * given a question_id gets the list of concepts as json
+         * [
+         *  'direct':[cui1, cui2...],
+         *  'descendants':[cui1, cui2...],
+         *  'ascendants':[cui1, cui2...]
+         * ]
+         *
+         */
+        $r = array();
+        $results_query = DB::select('select distinct cui from concepts_questions where question_id = ? order by cui',array($question_id));
+        if(count($results_query)>0) {
+            foreach($results_query as $results_query_row) {
+                if(!in_array($results_query_row->cui, $r)){
+                    $r[] = $results_query_row->cui;
                 }
             }
-            $descendants = json_decode(medquizlib::getDescendants($cui));
-            foreach($descendants as $descendant) {
-                $this_list = DB::select('select distinct question_id from concepts_questions where cui =?',array($descendant->cui));
-                foreach ($this_list as $this_element) {
-                    if(!in_array($this_element->question_id, $final_list)) {
-                        $final_list[] = $this_element->question_id;
+        }
+        return json_encode($r);
+    }
+    
+    static function getSimilarQuestions($question_id) {
+        /*given a question_id return a list of similar questions
+         * based on their list of direct concepts
+         */
+        
+        //first get the list of concepts for the question_id
+        $concepts_array = json_decode(medquizlib::getConceptsFromQuestion($question_id));
+        
+        //now get the proportion of questions that have each concept and
+        //get the whole list of questions that hava any of the concepts
+        $concepts_associated_array = array();
+        $questions_to_compare_array = array();
+        
+        foreach($concepts_array as $concepts_array_element) {
+            
+            $questions_to_compare = json_decode(medquizlib::getQuestionsFromConcept($concepts_array_element));
+            
+            foreach($questions_to_compare->direct as $questions_to_compare_element){
+                if(!in_array($questions_to_compare_element,$questions_to_compare_array)) {
+                    $questions_to_compare_array[] = $questions_to_compare_element;
+                }
+            }
+            $concepts_associated_array[$concepts_array_element] = array("freq"=>json_decode(medquizlib::getFreqOfConcept($concepts_array_element)));
+        }
+        
+        //foreach question get its direct concepts, and check how
+        //many of them are common with reference question
+        //ponderated with the inverse of the frequency
+        $questions_result_associated = array();
+        
+        foreach($questions_to_compare_array as $question_to_compare) {
+            $similarity_score = 0;
+            $question_to_compare_concepts = json_decode(medquizlib::getConceptsFromQuestion($question_to_compare));
+            foreach($question_to_compare_concepts as $question_to_compare_concepts_element){
+                if(array_key_exists($question_to_compare_concepts_element, $concepts_associated_array)) {
+                    $similarity_score += 1 / $concepts_associated_array[$question_to_compare_concepts_element]['freq'];
+                }
+            }
+            $questions_result_associated[$question_to_compare] = $similarity_score;
+        }
+        arsort($questions_result_associated);
+        var_dump($questions_result_associated);
+        
+        
+        
+
+        
+    }
+    
+    static function getSimilarQuestionsBeta($question_id) {
+        /*given a question_id return a list of similar questions
+         * based on their list of concepts
+         */
+        
+        //first get the list of concepts for the question_id
+        
+        $r = array();
+        $r['question_id'] = $question_id;
+        $concepts_query = DB::select('select concepts.cui as cui, concepts.str as str FROM concepts_questions, concepts WHERE concepts_questions.question_id = ? AND concepts_questions.concept_id = concepts.id GROUP BY concepts.id',array($question_id));
+        
+        $concepts_list = array();
+        $concepts_list_ref = array();
+        
+        foreach($concepts_query as $concept_results_query) {
+            if(!in_array($concept_results_query->cui,$concepts_list_ref)) {
+                $concepts_list_ref[] = $concept_results_query->cui;
+                $concepts_list[] = array('cui'=>$concept_results_query->cui, 'str'=>$concept_results_query->str);
+                $this_ascendants = json_decode(medquizlib::getAscendants($concept_results_query->cui));
+                //var_dump("ASCENDANTS");
+                //var_dump($this_ascendants);
+                
+                if(count($this_ascendants)>0) {
+                    foreach($this_ascendants as $ascendant) {
+                        if(!in_array($ascendant->cui,$concepts_list_ref)) {
+                            $concepts_list_ref[] = $ascendant->cui;
+                            $concepts_list[] = array('cui'=>$ascendant->cui, 'str'=>$ascendant->str);
+                        }
                     }
                 }
-            }
-            return json_encode($final_list);
-        }
         
-        static function getChildren($cui) {
-            /*from a cui returns the list of first degree descendants (children)*/
-            $r = DB::select('select count(t.aui) as numaui, con.cui, con.str from terms as t right join concepts_concepts as c on t.aui = c.parentaui right join concepts as con on c.cui = con.cui where t.cui = ? group by con.cui, con.str order by con.str;',array($cui));
-            return json_encode($r);
-        }
-        
-        static function getAnswersFromQuestion($question_id, $user_id = null) {
-            if($user_id != null) {
-                    $r= DB::select('select user_id, question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE user_id = ? AND question_id = ? GROUP BY question_id',array($user_id, $question_id));    
-            } else {
-                    $r= DB::select('select question_id, SUM(answered = correct_answer) as num_right, COUNT(answered) as num_answered, SUM(CASE WHEN answered = 0 THEN 1 ELSE 0 END) AS num_blank FROM answers WHERE question_id = ? GROUP BY question_id',array($question_id));
-                    if(count($r)==0) {$r[0] = new stdClass();};
-                    $r[0]->user_id = "";
+                $this_descendants = json_decode(medquizlib::getDescendants($concept_results_query->cui));
+                if(count($this_descendants)>0) {
+                    foreach($this_descendants as $descendant) {
+                        if(!in_array($descendant->cui,$concepts_list_ref)) {
+                            $concepts_list_ref[] = $descendant->cui;
+                            $concepts_list[] = array('cui'=>$descendant->cui, 'str'=>$descendant->str);
+                        }
+                    }
+                }
+                
             }
-            if(count($r)==0) {
-                $r[] = "";
-            }
-            return $r;    
-        }
-        
-        static function getFreqOfConcept($cui) {
-            /* from a given cui calculate the proportion of questions
-             * that have this exact concept and the proportion of
-             * questions that have this concept or any descendant
-             */
+
             
-            $questions_with_concept = DB::select('SELECT question_id FROM concepts_questions WHERE cui = ? GROUP BY concepts_questions.question_id ORDER BY question_id', array($cui));
-            $questions_with_concept_count = count($questions_with_concept);
-            $questions_total = DB::select('SELECT COUNT(*) AS count FROM questions')[0];
-            
-            return $questions_with_concept_count / (int) $questions_total->count;
         }
+        foreach($concepts_list as $key=>$concept) {
+            $concepts_list[$key]['freq'] = medquizlib::getFreqOfConcept($concept['cui']);
+        }
+        var_dump($concepts_list);
+        
+        
+    }
         
 }

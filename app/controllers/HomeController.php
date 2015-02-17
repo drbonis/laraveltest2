@@ -22,8 +22,12 @@ class HomeController extends BaseController {
             return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
         }
   
-        public function sandboxjson($cui) {
-            return json_encode(medquizlib::getFreqOfConcept($cui));
+        public function sandboxjson($a) {
+            //return json_encode(json_decode(medquizlib::getQuestionsFromConcept($a)));
+            
+            medquizlib::getSimilarQuestions($a);
+            //return json_encode(json_decode(medquizlib::getAscendants($cui)));
+            //return json_encode(medquizlib::getFreqOfConcept($cui));
         }
         
         public function sandboxjson2($question_id, $user_id) {
@@ -59,9 +63,9 @@ class HomeController extends BaseController {
             $my_questions_list = array();
             
             foreach($r['concepts'] as $concept_element) {
-                $questions = json_decode(medquizlib::getQuestions($concept_element->cui));
+                $questions = json_decode(medquizlib::getQuestionsFromConcept($concept_element->cui));
 
-                foreach($questions as $my_question_id) {
+                foreach($questions->direct as $my_question_id) {
                     if(!in_array($my_question_id, $my_questions_list)) {
                         $my_questions_list[] = $my_question_id;
                     }
