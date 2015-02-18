@@ -144,7 +144,7 @@ class medquizlib {
         return json_encode($freq);
     }
     
-    static function getQuestionsFromConcept($cui) {
+    static function getQuestionsFromConcept($cui,$option='direct') {
         /* given a cui returns a json:
          * [
          *  'direct': [cui1,cui2...],
@@ -153,6 +153,8 @@ class medquizlib {
          * 
          * direct includes all the questions that have $cui concept
          * descendants includes all the questions that have any descendant of $cui
+         * 
+         * if $option = 'direct' only retrieve direct concepts to improve performance
          */
 
         $direct_list = array();
@@ -161,34 +163,27 @@ class medquizlib {
             foreach($direct_query as $direct_query_row) {
                 $direct_list[] = $direct_query_row->question_id;
             }
-        } 
-        
-        
-        $descendants_list = array();
-        $descendants_cui_list = json_decode(medquizlib::getDescendants($cui));
+        }         
+        if($option=='desc') {        
+            $descendants_list = array();
+            $descendants_cui_list = json_decode(medquizlib::getDescendants($cui));
+            if(count($descendants_cui_list)>0) {
+                foreach($descendants_cui_list as $descendants_cui_list_element) {
+                    $descendants_query = DB::select('select distinct question_id from concepts_questions where cui = ? order by question_id;',array($descendants_cui_list_element->cui));
+                    if(count($descendants_query)>0) {
+                        foreach($descendants_query as $descendants_query_row) {
+                            if(!in_array($descendants_query_row->question_id,$descendants_list)){
+                                $descendants_list[] = $descendants_query_row->question_id;
+                            }
 
-        if(count($descendants_cui_list)>0) {
-            foreach($descendants_cui_list as $descendants_cui_list_element) {
-                
-                $descendants_query = DB::select('select distinct question_id from concepts_questions where cui = ? order by question_id;',array($descendants_cui_list_element->cui));
-
-                if(count($descendants_query)>0) {
-                    
-                    foreach($descendants_query as $descendants_query_row) {
-
-                        if(!in_array($descendants_query_row->question_id,$descendants_list)){
-                            $descendants_list[] = $descendants_query_row->question_id;
                         }
-                        
                     }
                 }
-            }
-        }
-        $r = new stdClass();
-        $r->direct = $direct_list;
-        $r->descendant = $descendants_list;
-        $r = array();
-        //$r['a'] = "asdf";
+            }            
+        } else {
+            $descendants_list = array();
+        }    
+
         $r = ["direct"=>$direct_list, "descendant"=>$descendants_list];
         //return json_encode($r);
         return json_encode($r);
@@ -225,21 +220,36 @@ class medquizlib {
         $concepts_array = json_decode(medquizlib::getConceptsFromQuestion($question_id));
         
         //now get the proportion of questions that have each concept and
-        //get the whole list of questions that hava any of the concepts
+        //select the X less frequent concepts (to improve efficiency of the algorithm)
+
         $concepts_associated_array = array();
-        $questions_to_compare_array = array();
+        
         
         foreach($concepts_array as $concepts_array_element) {
             
             $questions_to_compare = json_decode(medquizlib::getQuestionsFromConcept($concepts_array_element));
+
+            $concepts_associated_array[$concepts_array_element] = json_decode(medquizlib::getFreqOfConcept($concepts_array_element));
+        }
+        arsort($concepts_associated_array);
+
+        $concepts_associated_array = array_slice($concepts_associated_array,0,9999); //set X
+
+        //get the whole list of questions that hava any of the 10 concepts selected
+        
+        $questions_to_compare_array = array();
+        
+        foreach($concepts_associated_array as $concept_cui => $concept_freq) {
+            
+            $questions_to_compare = json_decode(medquizlib::getQuestionsFromConcept($concept_cui));
             
             foreach($questions_to_compare->direct as $questions_to_compare_element){
                 if(!in_array($questions_to_compare_element,$questions_to_compare_array)) {
                     $questions_to_compare_array[] = $questions_to_compare_element;
                 }
             }
-            $concepts_associated_array[$concepts_array_element] = array("freq"=>json_decode(medquizlib::getFreqOfConcept($concepts_array_element)));
         }
+        
         
         //foreach question get its direct concepts, and check how
         //many of them are common with reference question
@@ -251,13 +261,13 @@ class medquizlib {
             $question_to_compare_concepts = json_decode(medquizlib::getConceptsFromQuestion($question_to_compare));
             foreach($question_to_compare_concepts as $question_to_compare_concepts_element){
                 if(array_key_exists($question_to_compare_concepts_element, $concepts_associated_array)) {
-                    $similarity_score += 1 / $concepts_associated_array[$question_to_compare_concepts_element]['freq'];
+                    $similarity_score += 1 / $concepts_associated_array[$question_to_compare_concepts_element];
                 }
             }
             $questions_result_associated[$question_to_compare] = $similarity_score;
         }
         arsort($questions_result_associated);
-        var_dump($questions_result_associated);
+        return json_encode($questions_result_associated);
         
         
         

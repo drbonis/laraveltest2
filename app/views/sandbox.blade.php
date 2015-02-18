@@ -14,22 +14,12 @@
 <body>
   <div class="container">
       <h1>Sandbox</h1>
-    <pre>{{var_dump($a)}}</pre>
-    <form id="form">
-        <div><textarea name="texto" id="texto" rows="10" form="form" cols="100"></textarea></div>
-        <input class="btn-success" type="submit">
-    </form>
+    <pre>{{var_dump($r)}}</pre>
 
-    <div id="taggedText"></div>
+
   </div>
     
-    
-    <script>
-        $("#form").submit(function(e){
-            e.preventDefault();
-            $("#taggedText").html($("#texto").val());  
-        });
-    </script>  
+
     
 </body>
 </html>
