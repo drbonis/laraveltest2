@@ -11,8 +11,6 @@
 |
 */
 
-Route::get('sandbox', array('uses'=>'HomeController@sandbox'));
-//Route::get('sandbox/json/', array('uses'=>'HomeController@sandboxjson'));
 Route::get('sandbox/json/{a}',array('uses'=>'HomeController@sandboxjson'));
 
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
@@ -36,15 +34,9 @@ Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@sho
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
 
-Route::get('concept/show', array('uses'=>'HomeController@showConcept'));
+Route::get('concept/sandbox/{str}', array('uses'=>'ConceptsController@getTermByStr'));
+Route::get('concept/select', array('uses'=>'ConceptsController@selectConcept'));
+Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptsController@getAscendants'));
+Route::get('concept/questions/{cui}/{option}',array('uses'=>'HomeController@getQuestionsFromConcept'));
 
-
-Route::get('concept/getdata',function(){
-    $data = DB::select("select * from terms where str LIKE ?",array("%".Input::get('term')."%"));
-    $result = array();
-    foreach ($data as $term) {
-        $result[] = $term->str;
-    }
-    return Response::json($result);
-
-});
+Route::get('question/show/{question_id}', array('uses'=>'HomeController@getQuestion'));

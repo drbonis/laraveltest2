@@ -9,36 +9,65 @@
   
   <script>
   $(function() {
-    var availableTags = [
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
+    
     $( "#tags" ).autocomplete({
       // source: availableTags
-      source: "/concept/getdata",
+      source: function(request,response){
+        $.ajax({
+            dataType: "json",
+            type : 'Get',
+            url: "/concept/sandbox/"+request['term'],
+            success: function(data) {
+                console.log(data);
+                console.log(request['term']);
+                response(data);
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+          
+          
+          
+      },
       minLength: 4,
       select: function(event, ui) {
-         alert("hola mundo");
+         console.log(event);
+         console.log(ui['item']['data']);
+         $.ajax({
+            dataType: "json",
+            type : 'Get',
+            url: "/concept/questions/"+ui['item']['data']+"/direct/",
+            success: function(data) {
+                console.log(data);
+                $.each(data['direct'],function(index,value){
+                    console.log(value);
+                             $.ajax({
+                                dataType: "json",
+                                type : 'Get',
+                                url: "/question/show/"+value,
+                                success: function(data) {
+                                    $('#results').html($('#results').html()+"<div>"+
+                                            "<div>"+JSON.stringify(data['id'])+" - "+JSON.stringify(data['question'])+"</div>"+
+                                            "<div>a) "+JSON.stringify(data['option1'])+"</div>"+
+                                            "<div>b) "+JSON.stringify(data['option2'])+"</div>"+
+                                            "<div>c) "+JSON.stringify(data['option3'])+"</div>"+
+                                            "<div>d) "+JSON.stringify(data['option4'])+"</div>"+
+                                            "<div>e) "+JSON.stringify(data['option5'])+"</div>"+
+                                            "</div>");
+                                    console.log(data);
+                                },
+                                error: function(data) {
+                                    console.log(data);
+                                }
+                            });
+                });
+                //$('#results').html(JSON.stringify(data));
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
       }
     });
   });
@@ -47,9 +76,11 @@
 <body>
  
 <div class="ui-widget">
-  <label for="tags">Tags: </label>
+  <label for="tags">Términos: </label>
   <input id="tags">
 </div>
+    
+<div id="results"></div>
  
  
 </body>
