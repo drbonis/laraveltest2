@@ -200,5 +200,6 @@ class HomeController extends BaseController {
             $r = DB::select('select id, question, option1, option2, option3, option4, option5, numoptions, answer from questions where id = ?',array($question_id));
             return Response::json($r[0]);
         }
+        
 
 }

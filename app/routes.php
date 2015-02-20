@@ -34,9 +34,9 @@ Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@sho
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
 
-Route::get('concept/sandbox/{str}', array('uses'=>'ConceptsController@getTermByStr'));
-Route::get('concept/select', array('uses'=>'ConceptsController@selectConcept'));
-Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptsController@getAscendants'));
+Route::get('concept/sandbox/{aui}', array('uses'=>'ConceptController@getConceptFromAui'));
+Route::get('concept/select', array('uses'=>'ConceptController@selectConcept'));
+Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptController@getAscendants'));
 Route::get('concept/questions/{cui}/{option}',array('uses'=>'HomeController@getQuestionsFromConcept'));
 
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@getQuestion'));
