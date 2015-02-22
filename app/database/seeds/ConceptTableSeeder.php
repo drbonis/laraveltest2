@@ -29,24 +29,10 @@ class ConceptTableSeeder extends Seeder
             $rows = file($filename);
             foreach($rows as $row) {
                 $columns = explode("|", $row);
-                //echo $row;
+
                 DB::insert('insert into concepts_concepts (cui, aui, parentaui, auihier, meshhier) values (?, ?, ?, ?, ?)', 
                     array($columns[0], $columns[1], $columns[3], $columns[6], $columns[7]));
             }
         }         
     }
 }
-
-/*
- *                 $table->increments('id');
-                
-                $table->string('question',320);
-                $table->string('option1',320);
-                $table->string('option2',320);
-                $table->string('option3',320)->nullable();
-                $table->string('option4',320)->nullable();
-                $table->string('option5',320)->nullable();
-                $table->integer('numoptions');
-                $table->integer('answer');
-                $table->timestamps();
- */

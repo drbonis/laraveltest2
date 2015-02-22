@@ -22,16 +22,3 @@ class TermTableSeeder extends Seeder
     }
 }
 
-/*
- *                 $table->increments('id');
-                
-                $table->string('question',320);
-                $table->string('option1',320);
-                $table->string('option2',320);
-                $table->string('option3',320)->nullable();
-                $table->string('option4',320)->nullable();
-                $table->string('option5',320)->nullable();
-                $table->integer('numoptions');
-                $table->integer('answer');
-                $table->timestamps();
- */

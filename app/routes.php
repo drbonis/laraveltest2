@@ -34,10 +34,16 @@ Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@sho
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
 
-Route::get('concept/sandbox/{cui}/{json?}', array('uses'=>'ConceptController@getAscendantsFromCui'));
+Route::get('concept/sandbox/{cui}', array('uses'=>'ConceptController@borrame'));
+
+
 
 Route::get('concept/select', array('uses'=>'ConceptController@selectConcept'));
-Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptController@getAscendants'));
+Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptController@getAscendantsFromCui'));
+Route::get('concept/ascendantsall/{cui}', array('uses'=>'ConceptController@getAscendantsFromCuiAll'));
 Route::get('concept/questions/{cui}/{option}',array('uses'=>'HomeController@getQuestionsFromConcept'));
+
+Route::get('concept/descendantstree/{cui}', array('uses'=>'ConceptController@getDescendantsFromCuiTree'));
+Route::get('concept/descendantsall/{cui}', array('uses'=>'ConceptController@getDescendantsFromCuiAll'));
 
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@getQuestion'));

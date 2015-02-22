@@ -275,6 +275,104 @@ class medquizlib {
         
     }
     
+    
+    static function getConceptFromAui($aui,$json='') {
+            /*
+             * ["aui":, "cui":, "str":]
+             */
+            $a_query = DB::select('SELECT terms.aui, concepts.cui, concepts.str FROM terms left join concepts on terms.cui = concepts.cui where homestead.terms.aui = ?',array($aui));
+            if(count($a_query)>0){
+                $r = array("aui"=>$a_query[0]->aui,"cui"=>$a_query[0]->cui,"str"=>$a_query[0]->str);
+            } else {
+                $r = array("aui"=>"","cui"=>"","str"=>"");
+            }
+            
+            return $r;
+    }
+    
+    
+    static function getAscendantsFromCui($cui) {
+            /*
+             * output:
+             * ["cui":$cui,
+             *  "str":,
+             * "ascendants":
+             *  [
+             *      0:  [
+             *              ["cui":"","str":""],["cui":"","str":""]...
+             *          ],
+             *      1:  [
+             *              ["cui":"","str":""],["cui":"","str":""]...
+             *          ],
+             *      2:  [
+             *              ["cui":"","str":""],["cui":"","str":""]...
+             *          ]
+             *          ...
+             *  ]
+             * ]
+             */
+            $r = array("cui"=>$cui, "str"=>'',"ascendants"=>array());
+            
+            $concept_query_results = DB::select('select str from concepts where cui = ?',array($cui));
+            
+            $r['str'] = $concept_query_results[0]->str;
+            
+            $auihier_query_results = DB::select('select auihier from concepts_concepts where cui = ?',array($cui));
+            //var_dump($auihier_query_results);
+            $aui_list = array();
+            foreach($auihier_query_results as $auihier_set) {
+                $new_ascendant_chain = array();
+                $this_aui_list = explode(".",$auihier_set->auihier);
+                foreach($this_aui_list as $aui) {
+                    if(key_exists($aui,$aui_list)) {
+                        $new_ascendant_chain[] = array('cui'=>$aui_list[$aui]['cui'],'str'=>$aui_list[$aui]['str']);
+                    } else {
+                        $concept_info = medquizlib::getConceptFromAui($aui);
+                        $aui_list[$aui] = array('cui'=>$concept_info['cui'], 'str'=>$concept_info['str']);    
+                        $new_ascendant_chain[] = array('cui'=>$aui_list[$aui]['cui'],'str'=>$aui_list[$aui]['str']);
+                        
+                    }
+                  
+                }
+                $r['ascendants'][] = $new_ascendant_chain;
+            } 
+            return $r;
+        }
+        
+        static function getAscendantsFromCuiAll($cui,$json='') {
+            $r = array();
+            $r['ascendants'] = array();
+            $ascendants = medquizlib::getAscendantsFromCui($cui);
+
+            
+            $r['cui'] = $ascendants['cui'];
+            $r['str'] = $ascendants['str'];
+            $new_ascendants = $ascendants['ascendants'];
+            foreach($new_ascendants as $ascendants_list) {
+                foreach($ascendants_list as $ascendant_element) {
+                    if($ascendant_element['cui']!='' && !in_array($ascendant_element['cui'], $r['ascendants'])) {
+                        $r['ascendants'][] = $ascendant_element['cui'];
+                    }
+                }
+            }
+            return $r;
+        }
+        
+        static function getConceptIdFromCui($cui){
+            $r_query = DB::select('select id from concepts where cui = ?',array($cui));
+            if(count($r_query)>0) {
+                $r = $r_query[0]->id;
+            } else {
+                $r = '';
+            }
+            return $r;
+        }
+    
+    
+    
+    
+    
+    
     static function getSimilarQuestionsBeta($question_id) {
         /*given a question_id return a list of similar questions
          * based on their list of concepts

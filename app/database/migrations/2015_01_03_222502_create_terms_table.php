@@ -16,9 +16,9 @@ class CreateTermsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->timestamps();
-                        $table->string('cui',8);
-                        $table->string('aui',8);
-                        $table->string('meshcode',8);
+                        $table->string('cui',12);
+                        $table->string('aui',12);
+                        $table->string('meshcode',12);
                         $table->string('str',320)->index();
 		});
 	}

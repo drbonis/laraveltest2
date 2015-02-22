@@ -30,6 +30,7 @@ return array(
     'ClassPreloader\\Parser\\FileVisitor' => $vendorDir . '/classpreloader/classpreloader/src/ClassPreloader/Parser/FileVisitor.php',
     'ClassPreloader\\Parser\\NodeTraverser' => $vendorDir . '/classpreloader/classpreloader/src/ClassPreloader/Parser/NodeTraverser.php',
     'Concept' => $baseDir . '/app/models/Concept.php',
+    'ConceptController' => $baseDir . '/app/controllers/ConceptController.php',
     'ConceptTableSeeder' => $baseDir . '/app/database/seeds/ConceptTableSeeder.php',
     'CreateAnswersTable' => $baseDir . '/app/database/migrations/2015_01_05_122725_create_answers_table.php',
     'CreateConceptsConceptsTable' => $baseDir . '/app/database/migrations/2015_01_03_222921_create_concepts_concepts_table.php',

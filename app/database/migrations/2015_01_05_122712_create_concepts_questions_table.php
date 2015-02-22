@@ -19,7 +19,7 @@ class CreateConceptsQuestionsTable extends Migration {
                 $table->integer('concept_id')->unsigned()->index();
                 $table->integer('term_id')->unsigned()->index();
                 $table->integer('question_id')->unsigned()->index();
-                $table->string('cui',8)->index();
+                $table->string('cui',12)->index();
                 $table->timestamps();
                 
                 //$table->foreign('concept_id')->references('id')->on('concepts');
