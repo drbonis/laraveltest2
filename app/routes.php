@@ -34,7 +34,8 @@ Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@sho
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
 
-Route::get('concept/sandbox/{aui}', array('uses'=>'ConceptController@getConceptFromAui'));
+Route::get('concept/sandbox/{cui}/{json?}', array('uses'=>'ConceptController@getAscendantsFromCui'));
+
 Route::get('concept/select', array('uses'=>'ConceptController@selectConcept'));
 Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptController@getAscendants'));
 Route::get('concept/questions/{cui}/{option}',array('uses'=>'HomeController@getQuestionsFromConcept'));

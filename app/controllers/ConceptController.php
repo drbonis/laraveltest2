@@ -17,6 +17,14 @@ class ConceptController extends BaseController {
 
         /*JSON functions */
     
+        private function responseFacade($r,$json='') {
+            if($json=='json') {
+                var_dump('json');
+                return Response::json($r);
+            } else {
+                return $r;
+            }
+        }
     
         public function getTermByStr($str) {
             $r = DB::select('select cui, aui, meshcode, str from terms where str LIKE ?',array("%".$str."%"));
@@ -24,10 +32,10 @@ class ConceptController extends BaseController {
             foreach($r as $row) {
                 $r2[] = array("value"=>$row->str, "data"=>$row->cui);
             }
-            return Response::json($r2);
+            return json_encode($r2);
         }
         
-        public function getConceptFromAui($aui) {
+        public function getConceptFromAui($aui,$json='') {
             /*
              * ["aui":, "cui":, "str":]
              */
@@ -38,7 +46,7 @@ class ConceptController extends BaseController {
                 $r = array("aui"=>"","cui"=>"","str"=>"");
             }
             
-            return Response::json($r);
+            return $this->responseFacade($r,$json);
         }
         
         /*public function getAscendants($cui) {
@@ -49,7 +57,7 @@ class ConceptController extends BaseController {
             return View::make('concept.show');
         }*/
   
-        public function getAscendantsFromCui($cui) {
+        public function getAscendantsFromCui($cui,$json='') {
             /*
              * output:
              * ["ref_cui":$cui,
@@ -70,9 +78,31 @@ class ConceptController extends BaseController {
              */
             $r = array("ref_cui"=>$cui, "ascendants"=>array());
             
-            $query_results = DB::select('select ',array($cui));
-            
-            return Response::json($r);
+            $auihier_query_results = DB::select('select auihier from concepts_concepts where cui = ?',array($cui));
+            //var_dump($auihier_query_results);
+            $aui_list = array();
+            foreach($auihier_query_results as $auihier_set) {
+                $new_ascendant_chain = array();
+                $this_aui_list = explode(".",$auihier_set->auihier);
+                foreach($this_aui_list as $aui) {
+                    //var_dump($aui);
+                    if(key_exists($aui,$aui_list)) {
+                        $new_ascendant_chain[] = array('cui'=>$aui_list[$aui]['cui'],'str'=>$aui_list[$aui]['str']);
+                    } else {
+                        $concept_info = ConceptController::getConceptFromAui($aui);
+                        //var_dump($concept_info);
+                        $aui_list[$aui] = array('cui'=>$concept_info['cui'], 'str'=>$concept_info['str']);    
+                        $new_ascendant_chain[] = array('cui'=>$aui_list[$aui]['cui'],'str'=>$aui_list[$aui]['str']);
+                        
+                    }
+                  
+                }
+                $r['ascendants'][] = $new_ascendant_chain;
+            } 
+
+            return $this->responseFacade($r,$json);
+            //return Response::json($auihier_query_results);
+            //return Response::json($r);
         }
         
         public function getDescendantsFromCuiTree($cui,$depth) {
