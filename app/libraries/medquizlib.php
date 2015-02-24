@@ -15,6 +15,14 @@ class medquizlib {
     //put your code here
 
     
+        static function responseFacade($r,$json='') {
+            if($json=='json') { 
+                return json_encode($r);
+            } else {
+                return $r;
+            }
+        }
+    
     static function getConceptsFromText($mytext) {
             //gets the list of concepts that are included in the text
 

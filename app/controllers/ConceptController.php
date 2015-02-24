@@ -1,6 +1,6 @@
 <?php
 
-class TermController extends BaseController {
+class ConceptController extends BaseController {
 
 	/*
 	|--------------------------------------------------------------------------
@@ -33,11 +33,7 @@ class TermController extends BaseController {
             }
             return json_encode($r2);
         }
-        
-        public function addTerm() {
-            
-        }
-        
+                
         public function getConceptFromAui($aui,$json='') {
             /*
              * ["aui":, "cui":, "str":]

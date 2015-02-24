@@ -16,19 +16,6 @@ class HomeController extends BaseController {
 	*/
 
     
-        public function sandbox() {
-
-            $mytext = "Angina de pecho";
-            return View::make('sandbox',array("a"=>medquizlib::getConceptsFromText($mytext)));
-        }
-  
-        public function sandboxjson($a) {
-            //return json_encode(json_decode(medquizlib::getQuestionsFromConcept($a)));
-            return json_encode(json_decode(medquizlib::getConceptsFromQuestion($a)));
-            //medquizlib::getSimilarQuestions($a);
-            //return json_encode(json_decode(medquizlib::getAscendants($cui)));
-            //return json_encode(medquizlib::getFreqOfConcept($cui));
-        }
         
  
         
@@ -191,15 +178,30 @@ class HomeController extends BaseController {
             return View::make('concept.show');
         }
         
-        
+        /*
         public function getQuestionsFromConcept($cui,$option) {
             return Response::json(json_decode(medquizlib::getQuestionsFromConcept($cui,$option)));
         }
+        */
         
-        public function getQuestion($question_id) {
+        public function getQuestion($question_id,$json='') {
             $r = DB::select('select id, question, option1, option2, option3, option4, option5, numoptions, answer from questions where id = ?',array($question_id));
-            return Response::json($r[0]);
+            return medquizlib::responseFacade($r[0],$json);
+            //return json_encode($r[0]);
         }
         
+        public function getConceptsFromQuestion($question_id,$json='') {
+            $r = json_decode($this->getQuestion($question_id,'json'));
+            $r->concepts = array();
+            $concepts_list = DB::select('select cui from concepts_questions where question_id = ?',array($question_id));
+            if(count($concepts_list)>0){
+                foreach($concepts_list as $cui) {
+                    $request = Request::create("concept/str/".$cui->cui."/json", 'GET');
+                    $str = Route::dispatch($request)->getContent();
+                    $r->concepts[] = array("cui"=>$cui->cui, "str"=>$str);
+                }
+            }
+            return medquizlib::responseFacade($r,'json');
+        }
 
 }
