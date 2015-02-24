@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('sandbox/{a}',array('uses'=>'HomeController@getConceptsFromQuestion'));
+Route::get('sandbox/{a}',array('uses'=>'HomeController@getQuestionWithConcepts'));
 
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 
@@ -50,4 +50,4 @@ Route::get('concept/questions/{cui}/{option?}/{json?}/',array('uses'=>'ConceptCo
 Route::get('concept/answers/user/{user_id}/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 
-Route::get('question/show/{question_id}', array('uses'=>'HomeController@getQuestion'));
+Route::get('question/show/{question_id}', array('uses'=>'HomeController@showQuestion'));

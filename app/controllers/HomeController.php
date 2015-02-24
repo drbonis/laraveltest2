@@ -184,13 +184,35 @@ class HomeController extends BaseController {
         }
         */
         
+        public function showQuestion($question_id) {
+            $r = json_decode($this->getQuestionWithConcepts($question_id,'json'));
+
+            return View::make('question.show'
+                    ,array(
+                        'question_id'=>$r->id,
+                        'question'=>$r->question,
+                        'opt1'=>$r->option1,
+                        'opt2'=>$r->option2,
+                        'opt3'=>$r->option3,
+                        'opt4'=>$r->option4,
+                        'opt5'=>$r->option5,
+                        'numoptions'=>$r->numoptions,
+                        'answer'=>$r->answer,
+                        'concepts'=>$r->concepts
+                    )); 
+
+        }
+        
+        /* API SECTION */
+        
+        
         public function getQuestion($question_id,$json='') {
             $r = DB::select('select id, question, option1, option2, option3, option4, option5, numoptions, answer from questions where id = ?',array($question_id));
             return medquizlib::responseFacade($r[0],$json);
             //return json_encode($r[0]);
         }
         
-        public function getConceptsFromQuestion($question_id,$json='') {
+        public function getQuestionWithConcepts($question_id,$json='') {
             $r = json_decode($this->getQuestion($question_id,'json'));
             $r->concepts = array();
             $concepts_list = DB::select('select cui from concepts_questions where question_id = ?',array($question_id));
@@ -201,7 +223,7 @@ class HomeController extends BaseController {
                     $r->concepts[] = array("cui"=>$cui->cui, "str"=>$str);
                 }
             }
-            return medquizlib::responseFacade($r,'json');
+            return medquizlib::responseFacade($r,$json);
         }
 
 }
