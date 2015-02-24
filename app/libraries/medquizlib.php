@@ -144,50 +144,7 @@ class medquizlib {
         return json_encode($freq);
     }
     
-    static function getQuestionsFromConcept($cui,$option='direct') {
-        /* given a cui returns a json:
-         * [
-         *  'direct': [cui1,cui2...],
-         *  'descendants': [cui1, cui2, cui3...]
-         * ]
-         * 
-         * direct includes all the questions that have $cui concept
-         * descendants includes all the questions that have any descendant of $cui
-         * 
-         * if $option = 'direct' only retrieve direct concepts to improve performance
-         */
-
-        $direct_list = array();
-        $direct_query = DB::select('select distinct question_id from concepts_questions where cui = ? order by question_id;',array($cui));
-        if(count($direct_query)>0) {
-            foreach($direct_query as $direct_query_row) {
-                $direct_list[] = $direct_query_row->question_id;
-            }
-        }         
-        if($option=='desc') {        
-            $descendants_list = array();
-            $descendants_cui_list = json_decode(medquizlib::getDescendants($cui));
-            if(count($descendants_cui_list)>0) {
-                foreach($descendants_cui_list as $descendants_cui_list_element) {
-                    $descendants_query = DB::select('select distinct question_id from concepts_questions where cui = ? order by question_id;',array($descendants_cui_list_element->cui));
-                    if(count($descendants_query)>0) {
-                        foreach($descendants_query as $descendants_query_row) {
-                            if(!in_array($descendants_query_row->question_id,$descendants_list)){
-                                $descendants_list[] = $descendants_query_row->question_id;
-                            }
-
-                        }
-                    }
-                }
-            }            
-        } else {
-            $descendants_list = array();
-        }    
-
-        $r = ["direct"=>$direct_list, "descendant"=>$descendants_list];
-        //return json_encode($r);
-        return json_encode($r);
-    }
+    
     
     static function getConceptsFromQuestion($question_id) {
         /*

@@ -1,6 +1,6 @@
 <?php
 
-class ConceptController extends BaseController {
+class TermController extends BaseController {
 
 	/*
 	|--------------------------------------------------------------------------
@@ -32,6 +32,10 @@ class ConceptController extends BaseController {
                 $r2[] = array("value"=>$row->str, "data"=>$row->cui);
             }
             return json_encode($r2);
+        }
+        
+        public function addTerm() {
+            
         }
         
         public function getConceptFromAui($aui,$json='') {
@@ -69,13 +73,6 @@ class ConceptController extends BaseController {
             return $this->responseFacade($r,$json);
         }
         
-        /*public function getAscendants($cui) {
-            return Response::json(json_decode(medquizlib::getAscendants($cui)));
-        }*/
-        
-        /*public function selectConcept(){
-            return View::make('concept.show');
-        }*/
   
         public function getAscendantsFromCui($cui,$json='') {
             /*
@@ -104,7 +101,6 @@ class ConceptController extends BaseController {
             $r['str'] = $concept_query_results[0]->str;
             
             $auihier_query_results = DB::select('select auihier from concepts_concepts where cui = ?',array($cui));
-            //var_dump($auihier_query_results);
             $aui_list = array();
             foreach($auihier_query_results as $auihier_set) {
                 $new_ascendant_chain = array();
@@ -115,10 +111,8 @@ class ConceptController extends BaseController {
                     } else {
                         $concept_info = ConceptController::getConceptFromAui($aui);
                         $aui_list[$aui] = array('cui'=>$concept_info['cui'], 'str'=>$concept_info['str']);    
-                        $new_ascendant_chain[] = array('cui'=>$aui_list[$aui]['cui'],'str'=>$aui_list[$aui]['str']);
-                        
-                    }
-                  
+                        $new_ascendant_chain[] = array('cui'=>$aui_list[$aui]['cui'],'str'=>$aui_list[$aui]['str']);  
+                    }  
                 }
                 $r['ascendants'][] = $new_ascendant_chain;
             } 
@@ -144,7 +138,26 @@ class ConceptController extends BaseController {
             return $this->responseFacade($r,$json);
         }
         
-        public function getDescendantsFromCuiTree($cui) {
+        public function getChildrenFromConcept($cui, $json = '') {
+            $r = array('cui'=>$cui, 'str'=>$this->getStrFromCui($cui), 'children'=>array());
+            $aui_ref_array = array();
+            $this_auis = $this->getAllAuisFromConcept($cui);
+            $cui_descendants = array();
+            foreach($this_auis as $aui) {
+                if(!in_array($aui, $aui_ref_array)) {
+                    $query_descendants = DB::select('select distinct concepts_concepts.cui, concepts.str from concepts, concepts_concepts where concepts_concepts.parentaui = ? and concepts.cui = concepts_concepts.cui;',array($aui));
+                    if(count($query_descendants) >0) {
+                        foreach($query_descendants as $descendant) {
+                            $r['children'][] = array("cui"=>$descendant->cui,"str"=>$descendant->str); 
+                        }
+                    } 
+                } 
+                $aui_ref_array[] = $aui;
+            }       
+            return $this->responseFacade($r,$json);
+        }
+        
+        public function getDescendantsFromCuiTree($cui, $json = '') {
             /*
              * [
              *  "cui":,
@@ -190,10 +203,11 @@ class ConceptController extends BaseController {
              
             
             //var_dump($r);
-            return json_encode($r);
+            return $this->responseFacade($r,$json);
+            //return json_encode($r);
         } 
         
-        public function getDescendantsFromCuiAll($cui) {
+        public function getDescendantsFromCuiAll($cui, $json = '') {
             /* [
              *  "cui":,
              *  "str":, 
@@ -245,27 +259,145 @@ class ConceptController extends BaseController {
                 }
                 array_shift($cui_ref_array);
             }
-            return json_encode($r);
+            return $this->responseFacade($r,$json);
         }
         
-        public function getQuestionsFromCui($cui) {
-            return true;
-        }
-        
-        public function getAnswersFromCuiUser($cui, $user_id, $option = "direct") {
-            return true;
-        }
-        
-        public function getAnswersFromCuiAllUsers($cui,$option = "direct") {
-            return true;
-        }
-        
-        public function getAnswersHistoryFromCui($cui, $user_id, $option = "direct") {
-            return true;
-        }
+        public function getQuestionsFromConcept($cui, $option = "direct", $json = '') {
+            /*
+             * [
+             *  'cui':,
+             *  'str':,
+             *  'direct':[question_id,question_id...],
+             *  'descendants':[question_id,question_id...]
+             * ]
+             */
+            $r = array("cui"=>$cui, "str"=>$this->getStrFromCui($cui), 'questions_direct'=>array(), 'questions_descendants'=>'');
             
-        public function borrame($cui){
-            return json_encode(medquizlib::getAscendantsFromCuiAll($cui));
+            $direct_query = DB::select('select question_id as question_id from concepts_questions where cui = ?',array($cui));
+            $questions_list = array();
+            if(count($direct_query)>0){
+                foreach($direct_query as $query) {
+                    if(!in_array($query->question_id,$questions_list)) {
+                        $r['questions_direct'][] = $query->question_id;
+                        $questions_list[] = $query->question_id;
+                    }
+                }
+            }
+            
+            if($option=='all') {
+                //$questions_list = array();
+                $cui_descendants = $this->getDescendantsFromCuiAll($cui);
+                foreach($cui_descendants['descendants'] as $cui_pair) {
+                    $descendants_query = DB::select('select question_id as question_id from concepts_questions where cui = ?',array($cui_pair['cui']));
+                    if(count($descendants_query)>0){
+                        foreach($descendants_query as $query) {
+                            if(!in_array($query->question_id, $questions_list)){
+                                $r['questions_descendants'][] = $query->question_id;
+                                $questions_list[] = $query->question_id;
+                            }
+                        }
+                        sort($r['questions_descendants']);
+                    }
+                }
+            }
+            
+            
+            return $this->responseFacade($r,$json);
         }
+        
+        public function getAnswersFromConceptUser($user_id = '', $cui, $option = "direct", $json = '') {
+            $r = array('user_id'=>$user_id, 'cui'=>$cui, 'str'=>$this->getStrFromCui($cui), 'direct_answers'=>array(), 'descendants_answers'=>array());
+            
+            if($option!="direct"){
+                $questions = $this->getQuestionsFromConcept($cui,'all');
+            } else {
+                $questions = $this->getQuestionsFromConcept($cui,'direct');
+            }
 
+            
+            foreach($questions['questions_direct'] as $question_id) {
+                if($user_id != '') {
+                    $answers_query = DB::select('select * from answers where user_id = ? and question_id = ?',array($user_id, $question_id));
+                } else {
+                    $answers_query = DB::select('select * from answers where question_id = ?',array($question_id));
+                }
+                if(count($answers_query)>0) {
+                    foreach($answers_query as $answer) {
+
+                        if($answer->answered==0) {
+                            $right = 0;
+                            $wrong = 0;
+                            $blank = 1;
+                        } else {
+                            if($answer->answered==$answer->correct_answer) {
+                                $right = 1;
+                                $wrong = 0;
+                                $blank = 0;
+                            } else {
+                                $right = 0;
+                                $wrong = 1;
+                                $blank = 0;
+                            } 
+
+                        }
+
+                        if(array_key_exists($answer->question_id,$r['direct_answers'])) {
+                            $r['direct_answers'][$answer->question_id]['done'] ++;
+                            $r['direct_answers'][$answer->question_id]['right'] += $right;
+                            $r['direct_answers'][$answer->question_id]['wrong'] += $wrong;
+                            $r['direct_answers'][$answer->question_id]['blank'] += $blank;
+                        } else {
+                            $r['direct_answers'][$answer->question_id] = array("done"=> 1,
+                                "right"=> $right,
+                                "wrong"=> $wrong,
+                                "blank"=> $blank);
+                        }
+                    }
+                }
+            }
+            
+            foreach($questions['questions_descendants'] as $question_id) {
+                if($user_id != '') {
+                    $answers_query = DB::select('select * from answers where user_id = ? and question_id = ?',array($user_id, $question_id));
+                } else {
+                    $answers_query = DB::select('select * from answers where question_id = ?',array($question_id));
+                }
+                foreach($answers_query as $answer) {
+                    
+                    if($answer->answered==0) {
+                        $right = 0;
+                        $wrong = 0;
+                        $blank = 1;
+                    } else {
+                        if($answer->answered==$answer->correct_answer) {
+                            $right = 1;
+                            $wrong = 0;
+                            $blank = 0;
+                        } else {
+                            $right = 0;
+                            $wrong = 1;
+                            $blank = 0;
+                        } 
+                        
+                    }
+
+
+
+                    if(array_key_exists($answer->question_id,$r['direct_answers'])) {
+                        $r['descendants_answers'][$answer->question_id]['done'] ++;
+                        $r['descendants_answers'][$answer->question_id]['right'] += $right;
+                        $r['descendants_answers'][$answer->question_id]['wrong'] += $wrong;
+                        $r['descendants_answers'][$answer->question_id]['blank'] += $blank;
+                    } else {
+                        $r['descendants_answers'][$answer->question_id] = array("done"=> 1,
+                            "right"=> $right,
+                            "wrong"=> $wrong,
+                            "blank"=>$blank);
+                        
+                    }
+                }    
+            }
+                   
+            return $this->responseFacade($r,$json);
+        }
 }

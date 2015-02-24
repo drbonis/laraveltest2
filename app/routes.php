@@ -41,9 +41,13 @@ Route::get('concept/sandbox/{cui}', array('uses'=>'ConceptController@borrame'));
 Route::get('concept/select', array('uses'=>'ConceptController@selectConcept'));
 Route::get('concept/ascendants/{cui}', array('uses'=>'ConceptController@getAscendantsFromCui'));
 Route::get('concept/ascendantsall/{cui}', array('uses'=>'ConceptController@getAscendantsFromCuiAll'));
-Route::get('concept/questions/{cui}/{option}',array('uses'=>'HomeController@getQuestionsFromConcept'));
-
 Route::get('concept/descendantstree/{cui}', array('uses'=>'ConceptController@getDescendantsFromCuiTree'));
 Route::get('concept/descendantsall/{cui}', array('uses'=>'ConceptController@getDescendantsFromCuiAll'));
+Route::get('concept/children/{cui}/{json?}',array('uses'=>'ConceptController@getChildrenFromConcept'));
+
+
+Route::get('concept/questions/{cui}/{option?}/{json?}/',array('uses'=>'ConceptController@getQuestionsFromConcept'));
+Route::get('concept/answers/user/{user_id}/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
+Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@getQuestion'));
