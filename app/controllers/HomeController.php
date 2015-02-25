@@ -203,6 +203,28 @@ class HomeController extends BaseController {
 
         }
         
+        public function editQuestion($question_id) {
+            $r = json_decode($this->getQuestionWithConcepts($question_id,'json'));
+
+            return View::make('question.edit'
+                    ,array(
+                        'question_id'=>$r->id,
+                        'question'=>$r->question,
+                        'opt1'=>$r->option1,
+                        'opt2'=>$r->option2,
+                        'opt3'=>$r->option3,
+                        'opt4'=>$r->option4,
+                        'opt5'=>$r->option5,
+                        'numoptions'=>$r->numoptions,
+                        'answer'=>$r->answer,
+                        'concepts'=>$r->concepts
+                    )); 
+        }
+        
+        public function doEditQuestion() {
+            var_dump(Input::all());
+        }
+        
         /* API SECTION */
         
         
@@ -217,10 +239,15 @@ class HomeController extends BaseController {
             $r->concepts = array();
             $concepts_list = DB::select('select cui from concepts_questions where question_id = ?',array($question_id));
             if(count($concepts_list)>0){
+                $concepts_added = array();
                 foreach($concepts_list as $cui) {
-                    $request = Request::create("concept/str/".$cui->cui."/json", 'GET');
-                    $str = Route::dispatch($request)->getContent();
-                    $r->concepts[] = array("cui"=>$cui->cui, "str"=>$str);
+                    if(!in_array($cui->cui,$concepts_added)) {
+                        $concepts_added[] = $cui->cui;
+                        $request = Request::create("concept/str/".$cui->cui."/json", 'GET');
+                        $str = Route::dispatch($request)->getContent();
+                        $r->concepts[] = array("cui"=>$cui->cui, "str"=>$str);
+                    }
+                    
                 }
             }
             return medquizlib::responseFacade($r,$json);

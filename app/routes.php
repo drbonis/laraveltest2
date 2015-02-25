@@ -51,3 +51,5 @@ Route::get('concept/answers/user/{user_id}/{cui}/{option?}',array('uses'=>'Conce
 Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@showQuestion'));
+Route::get('question/edit/{question_id}', array('uses'=>'HomeController@editQuestion'));
+Route::post('question/edit',array('uses'=>'HomeController@doEditQuestion'));
