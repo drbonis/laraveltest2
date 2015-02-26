@@ -53,3 +53,4 @@ Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@ge
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@showQuestion'));
 Route::get('question/edit/{question_id}', array('uses'=>'HomeController@editQuestion'));
 Route::post('question/edit',array('uses'=>'HomeController@doEditQuestion'));
+Route::get('question/delete/concept/{question_id}/{cui}',array('uses'=>'HomeController@removeConceptFromQuestion'));

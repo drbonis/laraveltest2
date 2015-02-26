@@ -19,7 +19,20 @@
 <script>
     $( document ).ready(function() {
         $(".concept_tag").click(function(e){
-            console.log(e.attr("id"));
+            console.log(e.target.id);
+            $.ajax({
+                dataType:"json",
+                type:"get",
+                url:"/question/delete/concept/"+{{$question_id}}+"/"+e.target.id,
+                success: function(data){
+                    console.log(data);
+                    $("#"+e.target.id).parent().remove();
+                    return true;
+                },
+                error: function(data){
+                    return false;
+                }
+            });
             //alert("hola mundo"); 
         });
     });
@@ -57,8 +70,8 @@
             
             <div id="select_question" class="col-md-10 col-md-offset-1">
                 @foreach($concepts as $concept)
-                <button type="button" class="btn btn-info btn-sm concept_tag" id='{{$concept->cui}}'>
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                <button type="button" class="btn btn-info btn-sm" >
+                    <span class="glyphicon glyphicon-remove concept_tag" aria-hidden="true" id='{{$concept->cui}}'></span>
                     {{json_decode($concept->str)}}
                 </button>
 

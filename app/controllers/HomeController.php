@@ -268,5 +268,11 @@ class HomeController extends BaseController {
             }
             return medquizlib::responseFacade($r,$json);
         }
+        
+        public function removeConceptFromQuestion($question_id,$cui) {
+            DB::table('concepts_questions')->where('question_id','=',$question_id)->where('cui','=',$cui)->delete();
+            return json_encode(array($question_id=>$cui));
+            //return Redirect::to("question/edit/".$question_id);
+        }
 
 }
