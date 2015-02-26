@@ -205,9 +205,11 @@ class HomeController extends BaseController {
         
         public function editQuestion($question_id) {
             $r = json_decode($this->getQuestionWithConcepts($question_id,'json'));
-
+            $msg = Session::get('msg');
+            Session::put('msg','');
             return View::make('question.edit'
                     ,array(
+                        'msg'=>$msg,
                         'question_id'=>$r->id,
                         'question'=>$r->question,
                         'opt1'=>$r->option1,
@@ -218,11 +220,25 @@ class HomeController extends BaseController {
                         'numoptions'=>$r->numoptions,
                         'answer'=>$r->answer,
                         'concepts'=>$r->concepts
+                       
                     )); 
         }
         
         public function doEditQuestion() {
-            var_dump(Input::all());
+            $i = Input::all();
+            var_dump($i);
+            
+            DB::table('questions')->where('id',$i['question_id'])->update(array(
+                    'question'=>$i['question'],
+                    'option1'=>$i['option1'],
+                    'option2'=>$i['option2'],
+                    'option3'=>$i['option3'],
+                    'option4'=>$i['option4'],
+                    'option5'=>$i['option5'],
+                    'answer'=>$i['answer']
+                    ));
+            return Redirect::to("question/edit/".$i['question_id'])->with('msg','Pregunta actualizada'); 
+             
         }
         
         /* API SECTION */
