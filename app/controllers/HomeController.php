@@ -174,10 +174,26 @@ class HomeController extends BaseController {
             return Redirect::to('user/profile');
         }
         
+        
+        
+        
+        public function showExamCarrousel($exam_id) {
+            return View::make('exam.carrousel', array(
+                "user"=>Auth::user()->email,
+                "questions"=>DB::select('select * from questions, exams_questions where questions.id = exams_questions.question_id and exams_questions.exam_id = ? order by questions.id;',array($exam_id)),
+                "exam_id"=>$exam_id
+                ));
+        }
+        
+        
+        
+        
+        
+        /*
         public function showConcept() {
             return View::make('concept.show');
         }
-        
+        */
         /*
         public function getQuestionsFromConcept($cui,$option) {
             return Response::json(json_decode(medquizlib::getQuestionsFromConcept($cui,$option)));

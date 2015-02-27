@@ -33,6 +33,8 @@ Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@sho
 
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
+Route::get('exam/carrousel/{id}', array('uses'=>'HomeController@showExamCarrousel'));
+
 
 Route::get('concept/sandbox/{cui}', array('uses'=>'ConceptController@borrame'));
 
