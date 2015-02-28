@@ -166,7 +166,7 @@ class HomeController extends BaseController {
                 if (is_int($key)) {
                     $correct_option = DB::select('select * from questions where id = ?',array($key))[0]->answer;
                     
-                    DB::insert('insert into answers (exam_id, execution_id, question_id, user_id, answered, correct_answer) values (?, ?,?,?,?,?)',array($exam_id, $new_execution_id, $key, $user_id, $answer, $correct_option));
+                    DB::insert('insert into answers (exam_id, execution_id, question_id, user_id, answered, correct_answer, created_at, updated_at) values (?, ?,?,?,?,?,now(),now())',array($exam_id, $new_execution_id, $key, $user_id, $answer, $correct_option));
                     
                     echo "<pre>pregunta ".$key." respuesta ".$answer." correcta ".var_dump($correct_option)."<pre>";
                 }

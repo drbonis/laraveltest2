@@ -30,11 +30,10 @@ Route::get('user/new',array('uses'=>'HomeController@showNewUser'));
 Route::get('exam/list', array('before'=>'auth', 'uses'=>'HomeController@listExam'));
 
 Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
-
 Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
 Route::get('exam/carrousel/{id}', array('uses'=>'HomeController@showExamCarrousel'));
-
+Route::post('exam/carrousel', array('uses'=>'HomeController@doExamCarrousel'));
 
 Route::get('concept/sandbox/{cui}', array('uses'=>'ConceptController@borrame'));
 

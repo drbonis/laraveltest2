@@ -12,11 +12,11 @@ class QuestionTableSeeder extends Seeder
         
         $exam_id_ref = array(2011=>null, 2012=>null, 2013=>null);
         
-        DB::insert('insert into exams (shortname, longname, description) values (?, ?, ?)',array("MIR2011","Examen MIR 2011","Examen MIR oficial del año 2011"));
+        DB::insert('insert into exams (shortname, longname, description, created_at, updated_at) values (?, ?, ?, now(), now())',array("MIR2011","Examen MIR 2011","Examen MIR oficial del año 2011"));
         $exam_id_ref[2011] = DB::getPdo()->LastInsertId();
-        DB::insert('insert into exams (shortname, longname, description) values (?, ?, ?)',array("MIR2012","Examen MIR 2012","Examen MIR oficial del año 2012"));
+        DB::insert('insert into exams (shortname, longname, description, created_at, updated_at) values (?, ?, ?, now(), now())',array("MIR2012","Examen MIR 2012","Examen MIR oficial del año 2012"));
         $exam_id_ref[2012] = DB::getPdo()->LastInsertId();
-        DB::insert('insert into exams (shortname, longname, description) values (?, ?, ?)',array("MIR2013","Examen MIR 2013","Examen MIR oficial del año 2013"));
+        DB::insert('insert into exams (shortname, longname, description, created_at, updated_at) values (?, ?, ?, now(), now())',array("MIR2013","Examen MIR 2013","Examen MIR oficial del año 2013"));
         $exam_id_ref[2013] = DB::getPdo()->LastInsertId();
         
         $rows = file('./app/database/seeds/questions/questions.csv');
@@ -37,11 +37,11 @@ class QuestionTableSeeder extends Seeder
                     'answer'=>$columns[7]
                 ));
                 $new_question_id = DB::getPdo()->LastInsertId();
-                DB::insert('insert into exams_questions (exam_id, question_id) values (?, ?)', array($exam_id_ref[$columns[8]], $new_question_id));
+                DB::insert('insert into exams_questions (exam_id, question_id, created_at, updated_at) values (?, ?, now(), now())', array($exam_id_ref[$columns[8]], $new_question_id));
                 
                 $question_concepts = json_decode(medquizlib::getConceptsFromText($columns[1]." ".$columns[2]." ".$columns[3]." ".$columns[4]." ".$columns[5]." ".$columns[6]));
                 foreach ($question_concepts as $concept) {
-                   DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui) values (?, ?, ?, ?)', array($concept->concept_id, $concept->term_id, $new_question_id, $concept->cui));                 
+                   DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, created_at, updated_at) values (?, ?, ?, ?, now(), now())', array($concept->concept_id, $concept->term_id, $new_question_id, $concept->cui));                 
                 }
                 
             }
