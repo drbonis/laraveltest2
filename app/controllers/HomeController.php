@@ -257,6 +257,18 @@ class HomeController extends BaseController {
              
         }
         
+        public function createQuestion() {
+            return View::make('question.create',array());
+        }
+        
+        public function doCreateQuestion() {
+            $i = Input::all();
+            $file = $i['img'];
+            $file->move("img/questions",time().".".$i['img']->guessExtension());
+            
+            return Redirect::to('question/create');
+        }
+        
         /* API SECTION */
         
         

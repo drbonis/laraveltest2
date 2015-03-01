@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'AddImgToQuestionTable' => $baseDir . '/app/database/migrations/2015_03_01_162152_add_img_to_question_table.php',
     'Answer' => $baseDir . '/app/models/Answer.php',
     'AnswerTableSeeder' => $baseDir . '/app/database/seeds/AnswerTableSeeder.php',
     'BaseController' => $baseDir . '/app/controllers/BaseController.php',
