@@ -264,9 +264,18 @@ class HomeController extends BaseController {
         public function doCreateQuestion() {
             $i = Input::all();
             $file = $i['img'];
-            $file->move("img/questions",time().".".$i['img']->guessExtension());
+            var_dump($i);
+            
+            //
+            /*
+            DB::insert('insert into questions (question, option1, option2, option3, option4, option5, numoptions, answer, created_at, updated_at, img) values(?, ?, ?, ?, ?, ?, 5, ?, now(), now(), ?)',array());
+            if($file!=null) {$file->move("img/questions",time().".".$i['img']->guessExtension());}; 
+             
+             
             
             return Redirect::to('question/create');
+             * 
+             */
         }
         
         /* API SECTION */
