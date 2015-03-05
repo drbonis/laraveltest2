@@ -82,40 +82,55 @@
                 dataType: "json",
                 type: "POST",
                 url:"/api/concept/fromtext",
-                data: {'text': $('#question_textarea').val()},
+                data: {'text': $('#question_textarea').val()+" "
+                            +$('#option1').val()+" "
+                            +$('#option2').val()+" "
+                            +$('#option3').val()+" "
+                            +$('#option4').val()+" "
+                            +$('#option5').val()
+                            },
                 success:function(data){
                     data_parsed = JSON.parse(data);
 
                     
                     data_parsed.forEach(function(item){
-                        var new_html = $('#select_question').html()+"<button type='button' class='btn btn-info btn-sm' >\n"+"<span class=\"glyphicon glyphicon-remove concept_tag\" aria-hidden='true' id='"+item.cui+"'></span>"+item.concept_str+"</button>";
-                        $('#select_question').html(new_html);
-                        //$the_cui_list = JSON.decode(sessionStorage.getItem("cui_list"));
-                        console.log(sessionStorage.getItem("cui_list"));
                         the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
-                        console.log(the_cui_list);
-                        the_cui_list.push(item.cui);
-                        sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));
-                        $(".concept_tag").click(function(e){
-                            the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
-                            
-                            console.log(e.target.id);
-                            console.log(the_cui_list.indexOf(e.target.id));
-                            
-                            index = the_cui_list.indexOf(e.target.id);
-                            if (index > -1) {
-                                the_cui_list.splice(index, 1);
-                            }
+                        if($.inArray(item.cui, the_cui_list)<0){
+                            var new_html = $('#select_question').html()+"<button type='button' class='btn btn-info btn-sm' >\n"+"<span class=\"glyphicon glyphicon-remove concept_tag\" aria-hidden='true' id='"+item.cui+"'></span>"+item.concept_str+"</button>";
+                            $('#select_question').html(new_html);
+                            the_cui_list.push(item.cui);
                             sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));
-                            $("#"+e.target.id).parent().remove();
                             console.log(sessionStorage.getItem("cui_list"));
-                        });
-                        
+                            $("#cui_list_input").val(sessionStorage.getItem("cui_list"));
+                            $(".concept_tag").click(function(e){
+                                the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
+                                index = the_cui_list.indexOf(e.target.id);
+                                if (index > -1) {
+                                    the_cui_list.splice(index, 1);
+                                }
+                                sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));       
+                                $("#"+e.target.id).parent().remove();
+                                $("#cui_list_input").val(sessionStorage.getItem("cui_list"));
+                            });
+                        }
                     });
                 }
             });
         });
-        
+        /*
+        $('#save_btn').click(function(e){
+            e.preventDefault();
+            the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
+            console.log(the_cui_list);
+            
+            $.post("/api/question/create", {id: 1, name: "asdf"}, function(data,status){
+               console.log(data);
+               console.log(status);
+            });
+           
+            
+        });
+        */
 
         
    
@@ -144,16 +159,16 @@
         
         <div id="question_container" class="row" >
             
-            <div id="question" class="jumbotron col-md-10 col-md-offset-1">{{Form::textarea('question','',array('id'=>'question_textarea','style'=>'resize: none', 'class'=>'form-control col-xs-12', 'rows'=>'12'))}}</div>
+            <div id="question" class="jumbotron col-md-10 col-md-offset-1">{{Form::textarea('question','',array('id'=>'question_textarea','style'=>'resize: none', 'class'=>'form-control col-xs-12', 'rows'=>'12', 'required'))}}</div>
             
         </div>
         
         <div id="options_container" class="row" >
-            <div id="opt1">a) {{Form::radio('answer', '1')}} {{Form::text('option1','',array('style'=>'width: 90%'))}}</div>
-            <div id="opt2">b) {{Form::radio('answer', '2')}} {{Form::text('option2','',array('style'=>'width: 90%'))}}</div>
-            <div id="opt3">c) {{Form::radio('answer', '3')}} {{Form::text('option3','',array('style'=>'width: 90%'))}}</div>
-            <div id="opt4">d) {{Form::radio('answer', '4')}} {{Form::text('option4','',array('style'=>'width: 90%'))}}</div>
-            <div id="opt5">e) {{Form::radio('answer', '5')}} {{Form::text('option5','',array('style'=>'width: 90%'))}}</div>
+            <div id="opt1">a) {{Form::radio('answer', '1', false, array('required'))}} {{Form::text('option1','',array('style'=>'width: 90%', 'id'=>'option1', 'required'))}}</div>
+            <div id="opt2">b) {{Form::radio('answer', '2')}} {{Form::text('option2','',array('style'=>'width: 90%', 'id'=>'option2', 'required'))}}</div>
+            <div id="opt3">c) {{Form::radio('answer', '3')}} {{Form::text('option3','',array('style'=>'width: 90%', 'id'=>'option3'))}}</div>
+            <div id="opt4">d) {{Form::radio('answer', '4')}} {{Form::text('option4','',array('style'=>'width: 90%', 'id'=>'option4'))}}</div>
+            <div id="opt5">e) {{Form::radio('answer', '5')}} {{Form::text('option5','',array('style'=>'width: 90%', 'id'=>'option5'))}}</div>
         </div>
         
         <div>
@@ -166,14 +181,18 @@
         
         <div id="msgContainer" class="alert alert-danger"></div>
         
-        <div><button id="btn_concepts" class="btn btn-info">Conceptos</button></div>
+        <div>
+            <button id="btn_concepts" class="btn btn-info">Conceptos</button>
+            <input id="cui_list_input" type="hidden" name="cui_list_input" value="">
+        </div>
         
-        {{Form::submit('Añadir',array('class'=>'btn btn-danger'))}}
+        
+        {{Form::submit('Añadir',array('class'=>'btn btn-danger', 'id'=>'save_btn'))}}
         
         {{ Form::close() }}
         
          <div id="concepts_container" class="row" >
-            
+             
             <div id="select_question" class="col-md-10 col-md-offset-1">
 
             </div>

@@ -323,4 +323,9 @@ class HomeController extends BaseController {
             return medquizlib::responseFacade($r,$json);
         }
 
+        public function createQuestionPost($json='json') {
+            $i = Input::all();
+            //$file = $i['img'];
+            return json_encode($i);
+        }
 }

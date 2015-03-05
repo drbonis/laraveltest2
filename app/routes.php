@@ -61,3 +61,4 @@ Route::post('question/create',array('uses'=>'HomeController@doCreateQuestion'));
 
 Route::get('api/exam/list', array('uses'=>'HomeController@getAllExams'));
 Route::post('api/concept/fromtext', array('uses'=>'HomeController@getConceptsFromText'));
+Route::post('api/question/create', array('uses'=>'HomeController@createQuestionPost'));
