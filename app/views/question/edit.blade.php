@@ -33,7 +33,6 @@
                     return false;
                 }
             });
-            //alert("hola mundo"); 
         });
     });
 

@@ -25,10 +25,7 @@
             error: function(data) {
                 console.log(data);
             }
-        });
-          
-          
-          
+        });   
       },
       minLength: 4,
       select: function(event, ui) {

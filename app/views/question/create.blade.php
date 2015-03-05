@@ -16,20 +16,108 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 
+<style>
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
+</style>
+
+
 <script>
     
     $(function(){
+        sessionStorage.setItem("cui_list",JSON.stringify([]));
         $('#msgContainer').fadeOut(0);
         $('#imgSelector').change(function(){
             var fileToUpload = $('#imgSelector')[0].files[0];
+            $('#msgContainer').fadeOut(10);
             if(fileToUpload.size>200000) {
                 $('#msgContainer').html("La imagen tiene un tamaño demasiado grande");
                 $('#msgContainer').fadeIn(10);
                 document.getElementById("imgSelector").value = "";
             }
-            console.log(fileToUpload);
-
         });
+        
+        $('#imgSelector').change(function(e) {
+            var file = e.target.files[0],
+                imageType = /image.*/;
+
+            if (!file.type.match(imageType))
+                return;
+
+            var reader = new FileReader();
+            reader.onload = fileOnload;
+            reader.readAsDataURL(file);        
+        });
+
+        function fileOnload(e) {
+            var $img = $('<img>', { src: e.target.result });
+            var canvas = $('#canvas')[0];
+            var context = canvas.getContext('2d');
+
+            $img.load(function() {
+                context.drawImage(this, 0, 0);
+            });
+        }
+        
+        $('#btn_concepts').click(function(e){
+            e.preventDefault();
+            $.ajax({
+                dataType: "json",
+                type: "POST",
+                url:"/api/concept/fromtext",
+                data: {'text': $('#question_textarea').val()},
+                success:function(data){
+                    data_parsed = JSON.parse(data);
+
+                    
+                    data_parsed.forEach(function(item){
+                        var new_html = $('#select_question').html()+"<button type='button' class='btn btn-info btn-sm' >\n"+"<span class=\"glyphicon glyphicon-remove concept_tag\" aria-hidden='true' id='"+item.cui+"'></span>"+item.concept_str+"</button>";
+                        $('#select_question').html(new_html);
+                        //$the_cui_list = JSON.decode(sessionStorage.getItem("cui_list"));
+                        console.log(sessionStorage.getItem("cui_list"));
+                        the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
+                        console.log(the_cui_list);
+                        the_cui_list.push(item.cui);
+                        sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));
+                        $(".concept_tag").click(function(e){
+                            the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
+                            
+                            console.log(e.target.id);
+                            console.log(the_cui_list.indexOf(e.target.id));
+                            
+                            index = the_cui_list.indexOf(e.target.id);
+                            if (index > -1) {
+                                the_cui_list.splice(index, 1);
+                            }
+                            sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));
+                            $("#"+e.target.id).parent().remove();
+                            console.log(sessionStorage.getItem("cui_list"));
+                        });
+                        
+                    });
+                }
+            });
+        });
+        
+
+        
    
     });
     
@@ -45,9 +133,18 @@
     
         {{ Form::open(array('url' => 'question/create', 'files'=>true)) }}
 
+        <div>
+            <select id="exam_list" class="form-control">
+                @foreach($exam_list as $exam)
+                <option value="{{$exam->id}}">{{$exam->longname}}</option>
+                @endforeach
+            </select>
+        </div>
+        
+        
         <div id="question_container" class="row" >
             
-            <div id="question" class="jumbotron col-md-10 col-md-offset-1">{{Form::textarea('question','',array('style'=>'resize: none', 'class'=>'form-control col-xs-12', 'rows'=>'12'))}}</div>
+            <div id="question" class="jumbotron col-md-10 col-md-offset-1">{{Form::textarea('question','',array('id'=>'question_textarea','style'=>'resize: none', 'class'=>'form-control col-xs-12', 'rows'=>'12'))}}</div>
             
         </div>
         
@@ -58,19 +155,37 @@
             <div id="opt4">d) {{Form::radio('answer', '4')}} {{Form::text('option4','',array('style'=>'width: 90%'))}}</div>
             <div id="opt5">e) {{Form::radio('answer', '5')}} {{Form::text('option5','',array('style'=>'width: 90%'))}}</div>
         </div>
-        {{Form::file('img',array('id'=>'imgSelector'))}}
+        
+        <div>
+            <span class="btn btn-default btn-file">Imagen
+                {{Form::file('img',array('id'=>'imgSelector'))}}
+            </span>
+            
+        </div>
+
+        
         <div id="msgContainer" class="alert alert-danger"></div>
+        
+        <div><button id="btn_concepts" class="btn btn-info">Conceptos</button></div>
+        
         {{Form::submit('Añadir',array('class'=>'btn btn-danger'))}}
+        
         {{ Form::close() }}
-        <canvas id="imgPreview" style="border:1px solid #d3d3d3;"></canvas>
-        <div id="concepts_container" class="row" >
+        
+         <div id="concepts_container" class="row" >
             
             <div id="select_question" class="col-md-10 col-md-offset-1">
 
             </div>
             
         </div>
- 
+
+        <div><canvas id="canvas" width="500px" height="300px"></canvas></div>
+        
+        
+
+
+
         <footer class="footer">Pie de página</footer>
     </div>
  

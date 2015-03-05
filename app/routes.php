@@ -58,3 +58,6 @@ Route::get('question/delete/concept/{question_id}/{cui}',array('uses'=>'HomeCont
 
 Route::get('question/create',array('uses'=>'HomeController@createQuestion'));
 Route::post('question/create',array('uses'=>'HomeController@doCreateQuestion'));
+
+Route::get('api/exam/list', array('uses'=>'HomeController@getAllExams'));
+Route::post('api/concept/fromtext', array('uses'=>'HomeController@getConceptsFromText'));

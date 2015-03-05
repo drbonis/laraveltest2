@@ -258,7 +258,7 @@ class HomeController extends BaseController {
         }
         
         public function createQuestion() {
-            return View::make('question.create',array());
+            return View::make('question.create',array('exam_list'=>json_decode($this->getAllExams())));
         }
         
         public function doCreateQuestion() {
@@ -310,6 +310,17 @@ class HomeController extends BaseController {
             DB::table('concepts_questions')->where('question_id','=',$question_id)->where('cui','=',$cui)->delete();
             return json_encode(array($question_id=>$cui));
             //return Redirect::to("question/edit/".$question_id);
+        }
+        
+        public function getAllExams($json='json') {
+            $r = DB::table('exams')->get();
+            return medquizlib::responseFacade($r,$json);
+        }
+        
+        public function getConceptsFromText($json='json') {
+            $i = Input::all();
+            $r = medquizlib::getConceptsFromText($i['text']);
+            return medquizlib::responseFacade($r,$json);
         }
 
 }
