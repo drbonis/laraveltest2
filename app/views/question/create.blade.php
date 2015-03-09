@@ -43,6 +43,7 @@
     
     $(function(){
         sessionStorage.setItem("cui_list",JSON.stringify([]));
+        sessionStorage.setItem("cui_list_full",JSON.stringify([]));
         $('#msgContainer').fadeOut(0);
         $('#imgSelector').change(function(){
             var fileToUpload = $('#imgSelector')[0].files[0];
@@ -92,25 +93,33 @@
                 success:function(data){
                     data_parsed = JSON.parse(data);
 
-                    
+                    console.log(data_parsed);
                     data_parsed.forEach(function(item){
                         the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
+                        the_cui_list_full = JSON.parse(sessionStorage.getItem("cui_list_full"));
                         if($.inArray(item.cui, the_cui_list)<0){
                             var new_html = $('#select_question').html()+"<button type='button' class='btn btn-info btn-sm' >\n"+"<span class=\"glyphicon glyphicon-remove concept_tag\" aria-hidden='true' id='"+item.cui+"'></span>"+item.concept_str+"</button>";
                             $('#select_question').html(new_html);
+                            the_cui_list_full.push({cui: item.cui, term_id: item.term_id, concept_id: item.concept_id});
                             the_cui_list.push(item.cui);
                             sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));
+                            sessionStorage.setItem("cui_list_full", JSON.stringify(the_cui_list_full));
                             console.log(sessionStorage.getItem("cui_list"));
-                            $("#cui_list_input").val(sessionStorage.getItem("cui_list"));
+                            console.log(sessionStorage.getItem("cui_list_full"));
+                            $("#cui_list_input").val(sessionStorage.getItem("cui_list_full"));
                             $(".concept_tag").click(function(e){
                                 the_cui_list = JSON.parse(sessionStorage.getItem("cui_list"));
+                                the_cui_list_full = JSON.parse(sessionStorage.getItem("cui_list_full"));
                                 index = the_cui_list.indexOf(e.target.id);
                                 if (index > -1) {
                                     the_cui_list.splice(index, 1);
+                                    the_cui_list_full.splice(index, 1);
                                 }
                                 sessionStorage.setItem("cui_list", JSON.stringify(the_cui_list));       
+                                sessionStorage.setItem("cui_list_full", JSON.stringify(the_cui_list_full));       
                                 $("#"+e.target.id).parent().remove();
-                                $("#cui_list_input").val(sessionStorage.getItem("cui_list"));
+                                $("#cui_list_input").val(sessionStorage.getItem("cui_list_full"));
+                                
                             });
                         }
                     });
@@ -149,7 +158,7 @@
         {{ Form::open(array('url' => 'question/create', 'files'=>true)) }}
 
         <div>
-            <select id="exam_list" class="form-control">
+            <select id="exam_list" name="exam_list" class="form-control">
                 @foreach($exam_list as $exam)
                 <option value="{{$exam->id}}">{{$exam->longname}}</option>
                 @endforeach

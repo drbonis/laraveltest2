@@ -265,17 +265,34 @@ class HomeController extends BaseController {
             $i = Input::all();
             $file = $i['img'];
             var_dump($i);
+            $cui_list = json_decode($i['cui_list_input']);
+
             
-            //
-            /*
-            DB::insert('insert into questions (question, option1, option2, option3, option4, option5, numoptions, answer, created_at, updated_at, img) values(?, ?, ?, ?, ?, ?, 5, ?, now(), now(), ?)',array());
-            if($file!=null) {$file->move("img/questions",time().".".$i['img']->guessExtension());}; 
-             
+           
+            if($file!=null) {
+                $file_name = time().".".$i['img']->guessExtension();
+                $file->move("img/questions",$file_name);               
+            } else {
+                $file_name = null;
+            }; 
+            
+            DB::insert('insert into questions (question, option1, option2, option3, option4, option5, numoptions, answer, created_at, updated_at, img) values(?, ?, ?, ?, ?, ?, 5, ?, now(), now(), ?)',array($i['question'], $i['option1'], $i['option2'], $i['option3'], $i['option4'], $i['option5'], $i['answer'], $file_name));
+            $new_question_id = DB::getPdo()->LastInsertId();
+            
+            DB::insert('insert into exams_questions (exam_id, question_id, created_at, updated_at) values (?, ?, now(), now())', array($i['exam_list'], $new_question_id)); 
+            
+            //get concepts
+            
+            $cui_list = json_decode($i['cui_list_input']);
+            
+            foreach($cui_list as $cui) {
+                DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, created_at, updated_at) values (?, ?, ?, ?, now(), now())',array($cui->concept_id, $cui->term_id, $new_question_id, $cui->cui));
+                
+            }
              
             
             return Redirect::to('question/create');
-             * 
-             */
+
         }
         
         /* API SECTION */
@@ -323,9 +340,5 @@ class HomeController extends BaseController {
             return medquizlib::responseFacade($r,$json);
         }
 
-        public function createQuestionPost($json='json') {
-            $i = Input::all();
-            //$file = $i['img'];
-            return json_encode($i);
-        }
+
 }

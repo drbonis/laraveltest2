@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('sandbox/{a}',array('uses'=>'HomeController@getQuestionWithConcepts'));
+Route::get('sandbox/{a}',array('uses'=>'ConceptController@getConceptDetailsFromCui'));
 
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 
@@ -35,7 +35,8 @@ Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 Route::get('exam/carrousel/{id}', array('uses'=>'HomeController@showExamCarrousel'));
 Route::post('exam/carrousel', array('uses'=>'HomeController@doExamCarrousel'));
 
-Route::get('concept/sandbox/{cui}', array('uses'=>'ConceptController@borrame'));
+
+Route::get('concept/show/{cui}',array('uses'=>'ConceptController@getConceptDetailsFromCui'));
 
 
 

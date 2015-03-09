@@ -15,11 +15,15 @@ class ConceptController extends BaseController {
 	|
 	*/
 
+    
+        
+    
+    
         /*JSON functions */
     
         private function responseFacade($r,$json='') {
             if($json=='json') {
-                return Response::json($r);
+                return json_encode($r);
             } else {
                 return $r;
             }
@@ -395,5 +399,12 @@ class ConceptController extends BaseController {
             }
                    
             return $this->responseFacade($r,$json);
+        }
+        
+        
+        public function getConceptDetailsFromCui($cui) {
+            $r = json_decode(medquizlib::getConceptDetailsFromCui($cui));
+            
+            return View::make('concept.show', array('c'=>$r));
         }
 }
