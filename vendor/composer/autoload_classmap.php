@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AddImgToQuestionTable' => $baseDir . '/app/database/migrations/2015_03_01_162152_add_img_to_question_table.php',
+    'AddRootConceptToConceptsTable' => $baseDir . '/app/database/migrations/2015_03_09_233144_add_root_concept_to_concepts_table.php',
     'Answer' => $baseDir . '/app/models/Answer.php',
     'AnswerTableSeeder' => $baseDir . '/app/database/seeds/AnswerTableSeeder.php',
     'BaseController' => $baseDir . '/app/controllers/BaseController.php',

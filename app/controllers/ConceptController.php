@@ -119,23 +119,8 @@ class ConceptController extends BaseController {
             return $this->responseFacade($r,$json);
         }
         
-        public function getAscendantsFromCuiAll($cui,$json='') {
-            $r = array();
-            $r['ascendants'] = array();
-            $ascendants = $this->getAscendantsFromCui($cui);
-
-            
-            $r['cui'] = $ascendants['cui'];
-            $r['str'] = $ascendants['str'];
-            $new_ascendants = $ascendants['ascendants'];
-            foreach($new_ascendants as $ascendants_list) {
-                foreach($ascendants_list as $ascendant_element) {
-                    if($ascendant_element['cui']!='' && !in_array($ascendant_element['cui'], $r['ascendants'])) {
-                        $r['ascendants'][] = $ascendant_element['cui'];
-                    }
-                }
-            }
-            return $this->responseFacade($r,$json);
+        public function getAscendantsFromCuiAll($cui) {
+            var_dump(json_decode(medquizlib::getAscendantsFromCuiAll($cui)));   
         }
         
         public function getChildrenFromConcept($cui, $json = '') {
@@ -225,10 +210,7 @@ class ConceptController extends BaseController {
             $cui_done_array = array();
   
             while(count($cui_ref_array)>0) {
-                //var_dump(count($cui_ref_array));
-                
-                //var_dump(array("cuis_done"=>$cui_done_array));
-                //var_dump(array("aui_ref_array" =>$aui_ref_array));
+
                 if(!in_array($cui_ref_array[0],$cui_done_array)){
                     $cui_done_array[] = $cui_ref_array[0];
                     
@@ -262,7 +244,7 @@ class ConceptController extends BaseController {
             return $this->responseFacade($r,$json);
         }
         
-        public function getQuestionsFromConcept($cui, $option = "direct", $json = '') {
+        public function getQuestionsFromConcept($cui, $option = "direct") {
             /*
              * [
              *  'cui':,
@@ -271,7 +253,7 @@ class ConceptController extends BaseController {
              *  'descendants':[question_id,question_id...]
              * ]
              */
-            $r = array("cui"=>$cui, "str"=>$this->getStrFromCui($cui), 'questions_direct'=>array(), 'questions_descendants'=>'');
+            $r = array("cui"=>$cui, "str"=>$this->getStrFromCui($cui), 'questions_direct'=>array(), 'questions_descendants'=>array());
             
             $direct_query = DB::select('select question_id as question_id from concepts_questions where cui = ?',array($cui));
             $questions_list = array();
@@ -285,45 +267,58 @@ class ConceptController extends BaseController {
             }
             
             if($option=='all') {
-                //$questions_list = array();
+                $cuis_in_questions = DB::select('select distinct cui from concepts_questions order by cui');
+                $cuis_in_questions_array = array();
+                foreach($cuis_in_questions as $row) {
+                    $cuis_in_questions_array[] = $row->cui;
+                }
+                
+                
                 $cui_descendants = $this->getDescendantsFromCuiAll($cui);
+                
+                
                 foreach($cui_descendants['descendants'] as $cui_pair) {
-                    $descendants_query = DB::select('select question_id as question_id from concepts_questions where cui = ?',array($cui_pair['cui']));
-                    if(count($descendants_query)>0){
-                        foreach($descendants_query as $query) {
-                            if(!in_array($query->question_id, $questions_list)){
-                                $r['questions_descendants'][] = $query->question_id;
-                                $questions_list[] = $query->question_id;
+                    //only if $cui_pair['cui'] is in the list of cuis with direct questions
+                    if(in_array($cui_pair['cui'],$cuis_in_questions_array)) {
+                        
+                        $descendants_query = DB::select('select question_id as question_id from concepts_questions where cui = ?',array($cui_pair['cui']));
+                        if(count($descendants_query)>0){
+                            foreach($descendants_query as $query) {
+                                if(!in_array($query->question_id, $questions_list)){
+                                    $r['questions_descendants'][] = $query->question_id;
+                                    $questions_list[] = $query->question_id;
+                                }
                             }
+                            sort($r['questions_descendants']);
                         }
-                        sort($r['questions_descendants']);
                     }
                 }
+                 
+                 
             }
             
             
-            return $this->responseFacade($r,$json);
+            return json_encode($r);
         }
         
-        public function getAnswersFromConceptUser($user_id = '', $cui, $option = "direct", $json = '') {
+        public function getAnswersFromConceptUser($cui, $user_id = 'all', $option = 'direct') {
             $r = array('user_id'=>$user_id, 'cui'=>$cui, 'str'=>$this->getStrFromCui($cui), 'direct_answers'=>array(), 'descendants_answers'=>array());
             
-            if($option!="direct"){
-                $questions = $this->getQuestionsFromConcept($cui,'all');
+            if($option!='direct'){
+                $questions = json_decode($this->getQuestionsFromConcept($cui,'all'));
             } else {
-                $questions = $this->getQuestionsFromConcept($cui,'direct');
+                $questions = json_decode($this->getQuestionsFromConcept($cui,'direct'));
             }
 
             
-            foreach($questions['questions_direct'] as $question_id) {
-                if($user_id != '') {
+            foreach($questions->questions_direct as $question_id) {
+                if($user_id != 'all') {
                     $answers_query = DB::select('select * from answers where user_id = ? and question_id = ?',array($user_id, $question_id));
                 } else {
                     $answers_query = DB::select('select * from answers where question_id = ?',array($question_id));
                 }
                 if(count($answers_query)>0) {
                     foreach($answers_query as $answer) {
-
                         if($answer->answered==0) {
                             $right = 0;
                             $wrong = 0;
@@ -356,8 +351,8 @@ class ConceptController extends BaseController {
                 }
             }
             
-            foreach($questions['questions_descendants'] as $question_id) {
-                if($user_id != '') {
+            foreach($questions->questions_descendants as $question_id) {
+                if($user_id != 'all') {
                     $answers_query = DB::select('select * from answers where user_id = ? and question_id = ?',array($user_id, $question_id));
                 } else {
                     $answers_query = DB::select('select * from answers where question_id = ?',array($question_id));
@@ -397,8 +392,8 @@ class ConceptController extends BaseController {
                     }
                 }    
             }
-                   
-            return $this->responseFacade($r,$json);
+            return json_encode($r);       
+            //return $this->responseFacade($r,$json);
         }
         
         

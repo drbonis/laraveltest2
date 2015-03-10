@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('sandbox/{a}',array('uses'=>'ConceptController@getConceptDetailsFromCui'));
+Route::get('sandbox/{a}',array('uses'=>'ConceptController@getConceptFromText'));
 
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 
@@ -48,8 +48,9 @@ Route::get('concept/descendantsall/{cui}', array('uses'=>'ConceptController@getD
 Route::get('concept/children/{cui}/{json?}',array('uses'=>'ConceptController@getChildrenFromConcept'));
 Route::get('concept/str/{cui}/{json?}',array('uses'=>'ConceptController@getStrFromCui'));
 
-Route::get('concept/questions/{cui}/{option?}/{json?}/',array('uses'=>'ConceptController@getQuestionsFromConcept'));
-Route::get('concept/answers/user/{user_id}/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
+Route::get('concept/questions/{cui}/{option?}',array('uses'=>'ConceptController@getQuestionsFromConcept'));
+
+Route::get('concept/answers/{cui}/{user_id}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@showQuestion'));
