@@ -66,21 +66,23 @@ class medquizlib {
             foreach($list_to_search as $search_str) {
                 $db_output = DB::select("SELECT terms.id AS term_id, terms.cui AS cui, terms.aui AS aui, terms.meshcode AS meshcode, concepts.id AS concept_id, concepts.str AS concept_str FROM homestead.terms, homestead.concepts where terms.str = ? AND terms.cui = concepts.cui",array($search_str));
                 if(count($db_output)>0) {
-                    $output[] = $db_output[0];
-                    $cui_list[] = $db_output[0]->cui;
-                    $this_cui_ascendants = json_decode(medquizlib::getAscendantsFromCuiAll($db_output[0]->cui));
-                    
-                    foreach($this_cui_ascendants as $ascendant_cui) {
-                        $i = 1;
-                        //if(!in_array($ascendant_cui, $cui_list)) {
-                           // $cui_list[] = $ascendant_cui;
-                           // $this_concept_id = medquizlib::getConceptIdFromCui($ascendant_cui);
-                            //$output[] = array('term_id'=>null, 'cui'=>$ascendant_cui, 'aui'=>null, 'meshcode'=>null, 'concept_id'=>$this_concept_id, 'concept_str'=>null);
-                        //}
-                    }
+                    if(!in_array($db_output[0]->cui, $cui_list)) {
+                        $output[] = $db_output[0];
+                        $cui_list[] = $db_output[0]->cui;
+                        $this_cui_ascendants = json_decode(medquizlib::getAscendantsFromCuiAll($db_output[0]->cui));
 
+                        foreach($this_cui_ascendants->ascendants as $ascendant_cui) {
+                            $i = 1;
+                            $c = json_decode(medquizlib::getConceptDetailsFromCui($ascendant_cui));
+                            if(!in_array($c->cui, $cui_list)) {
+                                $output[] = array("cui"=>$c->cui, "concept_id"=>$c->concept_id, "term_id"=>$c->term_id, "aui"=>$c->aui, "meshcode"=>$c->meshcode, "concept_str"=>$c->str);
+                                $cui_list[] = $c->cui;
+                            }
+                        }
+                    }
                 };
             }
+            //var_dump($output);
             return json_encode($output);
     }
     
@@ -366,6 +368,9 @@ class medquizlib {
             $query = DB::select('select id, cui, aui, meshcode, str from concepts where cui = ? LIMIT 1', array($cui));
             
             if(count($query)>0) {
+                $term_id = DB::select('select id from terms where aui = ? LIMIT 1', array($query[0]->aui));
+                
+                $r['term_id'] = $term_id[0]->id;
                 $r['aui'] = $query[0]->aui;
                 $r['str'] = $query[0]->str;
                 $r['meshcode'] = $query[0]->meshcode; 

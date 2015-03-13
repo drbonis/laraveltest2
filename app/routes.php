@@ -11,7 +11,10 @@
 |
 */
 
-Route::get('sandbox/{a}',array('uses'=>'ConceptController@getConceptFromText'));
+Route::get('sandbox/{a}',function($a){
+    $r = medquizlib::getConceptsFromText($a);
+    var_dump($r);
+});
 
 Route::get('/', array('before'=>'auth', 'uses'=>'HomeController@showProfile'));
 
