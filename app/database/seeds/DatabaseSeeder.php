@@ -9,6 +9,8 @@ class DatabaseSeeder extends Seeder {
 	 */
 	public function run()
 	{
+                ini_set('memory_limit', '1024M');
+            
 		Eloquent::unguard();
 
 		$this->call('UserTableSeeder');

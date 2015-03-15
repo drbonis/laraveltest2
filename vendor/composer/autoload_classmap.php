@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'AddDirectToConceptsQuestions' => $baseDir . '/app/database/migrations/2015_03_13_221030_add_direct_to_concepts_questions.php',
     'AddImgToQuestionTable' => $baseDir . '/app/database/migrations/2015_03_01_162152_add_img_to_question_table.php',
     'AddRootConceptToConceptsTable' => $baseDir . '/app/database/migrations/2015_03_09_233144_add_root_concept_to_concepts_table.php',
     'Answer' => $baseDir . '/app/models/Answer.php',

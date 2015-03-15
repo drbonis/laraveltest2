@@ -120,7 +120,7 @@ class ConceptController extends BaseController {
         }
         
         public function getAscendantsFromCuiAll($cui) {
-            var_dump(json_decode(medquizlib::getAscendantsFromCuiAll($cui)));   
+            return medquizlib::getAscendantsFromCuiAll($cui);   
         }
         
         public function getChildrenFromConcept($cui, $json = '') {

@@ -41,7 +41,8 @@ class QuestionTableSeeder extends Seeder
                 
                 $question_concepts = json_decode(medquizlib::getConceptsFromText($columns[1]." ".$columns[2]." ".$columns[3]." ".$columns[4]." ".$columns[5]." ".$columns[6]));
                 foreach ($question_concepts as $concept) {
-                   DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, created_at, updated_at) values (?, ?, ?, ?, now(), now())', array($concept->concept_id, $concept->term_id, $new_question_id, $concept->cui));                 
+                   var_dump($concept);
+                   DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, direct, created_at, updated_at) values (?, ?, ?, ?, ?, now(), now())', array($concept->concept_id, $concept->term_id, $new_question_id, $concept->cui, $concept->direct));                 
                 }
                 
             }

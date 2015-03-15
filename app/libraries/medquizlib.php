@@ -63,26 +63,41 @@ class medquizlib {
             
             $output = array();
             $cui_list = array();
+            $cui_list_ascendants = array();
             foreach($list_to_search as $search_str) {
                 $db_output = DB::select("SELECT terms.id AS term_id, terms.cui AS cui, terms.aui AS aui, terms.meshcode AS meshcode, concepts.id AS concept_id, concepts.str AS concept_str FROM homestead.terms, homestead.concepts where terms.str = ? AND terms.cui = concepts.cui",array($search_str));
                 if(count($db_output)>0) {
                     if(!in_array($db_output[0]->cui, $cui_list)) {
-                        $output[] = $db_output[0];
-                        $cui_list[] = $db_output[0]->cui;
-                        $this_cui_ascendants = json_decode(medquizlib::getAscendantsFromCuiAll($db_output[0]->cui));
+                        if(!in_array($db_output[0]->cui,$cui_list_ascendants)) {
+                            $db_output[0]->direct = 1;
+                            $output[] = $db_output[0];
+                            $cui_list[] = $db_output[0]->cui;
+                            $this_cui_ascendants = json_decode(medquizlib::getAscendantsFromCuiAll($db_output[0]->cui));
+                            $db_output[0]->ascendants = $this_cui_ascendants->ascendants;
 
-                        foreach($this_cui_ascendants->ascendants as $ascendant_cui) {
-                            $i = 1;
-                            $c = json_decode(medquizlib::getConceptDetailsFromCui($ascendant_cui));
-                            if(!in_array($c->cui, $cui_list)) {
-                                $output[] = array("cui"=>$c->cui, "concept_id"=>$c->concept_id, "term_id"=>$c->term_id, "aui"=>$c->aui, "meshcode"=>$c->meshcode, "concept_str"=>$c->str);
-                                $cui_list[] = $c->cui;
+                            foreach($this_cui_ascendants->ascendants as $ascendant_cui) {           
+                                if(!in_array($ascendant_cui, $cui_list)) {
+                                    $cui_list_ascendants[] = $ascendant_cui;
+                                }
                             }
+                        } else {
+                            // change
+                            $output[] = $db_output[0];
+                            $db_output[0]->direct = 1;
+                            $cui_list[] = $db_output[0]->cui;
+                            $cui_list_ascendants = array_diff($cui_list_ascendants, array($db_output[0]->cui));
                         }
                     }
                 };
             }
-            //var_dump($output);
+            foreach($cui_list_ascendants as $ascendant_cui) {
+                //store the ascendants at the end
+                $c = json_decode(medquizlib::getConceptDetailsFromCui($ascendant_cui));
+                if($c!=null) {
+
+                    $output[] = array("cui"=>$c->cui, "concept_id"=>$c->concept_id, "term_id"=>$c->term_id, "aui"=>$c->aui, "meshcode"=>$c->meshcode, "concept_str"=>$c->str, "direct"=>0);
+                }
+            }
             return json_encode($output);
     }
     
