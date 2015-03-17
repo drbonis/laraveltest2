@@ -260,6 +260,10 @@ class HomeController extends BaseController {
         public function createQuestion() {
             return View::make('question.create',array('exam_list'=>json_decode($this->getAllExams())));
         }
+		
+		public function createQuestionOld() {
+            return View::make('question.create2');
+        }
         
         public function doCreateQuestion() {
             $i = Input::all();
