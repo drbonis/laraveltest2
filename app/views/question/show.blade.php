@@ -16,70 +16,7 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   
-  <script>
-  $(function() {
-    
-    $( "#tags" ).autocomplete({
-      // source: availableTags
-      source: function(request,response){
-        $.ajax({
-            dataType: "json",
-            type : 'Get',
-            url: "/concept/sandbox/"+request['term'],
-            success: function(data) {
-                console.log(data);
-                console.log(request['term']);
-                response(data);
-            },
-            error: function(data) {
-                console.log(data);
-            }
-        });
-          
-          
-          
-      },
-      minLength: 4,
-      select: function(event, ui) {
-         console.log(event);
-         console.log(ui['item']['data']);
-         $.ajax({
-            dataType: "json",
-            type : 'Get',
-            url: "/concept/questions/"+ui['item']['data']+"/direct/",
-            success: function(data) {
-                console.log(data);
-                $.each(data['direct'],function(index,value){
-                    console.log(value);
-                             $.ajax({
-                                dataType: "json",
-                                type : 'Get',
-                                url: "/question/show/"+value,
-                                success: function(data) {
-                                    $('#results').html($('#results').html()+"<div>"+
-                                            "<div>"+JSON.stringify(data['id'])+" - "+JSON.stringify(data['question'])+"</div>"+
-                                            "<div>a) "+JSON.stringify(data['option1'])+"</div>"+
-                                            "<div>b) "+JSON.stringify(data['option2'])+"</div>"+
-                                            "<div>c) "+JSON.stringify(data['option3'])+"</div>"+
-                                            "<div>d) "+JSON.stringify(data['option4'])+"</div>"+
-                                            "<div>e) "+JSON.stringify(data['option5'])+"</div>"+
-                                            "</div>");
-                                    console.log(data);
-                                },
-                                error: function(data) {
-                                    console.log(data);
-                                }
-                            });
-                });
-            },
-            error: function(data) {
-                console.log(data);
-            }
-        });
-      }
-    });
-  });
-  </script>
+
 </head>
 <body>
  
@@ -87,6 +24,12 @@
 
         <div class="header" id="header">Header</div>
     
+        <div id="question_img">
+            @if($img <> null)
+                <img id="question_img_prev" src="/img/questions/{{$img}}">
+            @endif
+        </div>
+        
         <div id="question_container" class="row" >
             <div id="question" class="jumbotron col-md-10 col-md-offset-1">{{$question}}</div>
         </div>
@@ -103,10 +46,12 @@
             
             <div id="select_question" class="col-md-10 col-md-offset-1">
                 @foreach($concepts as $concept)
-                <input class="btn btn-success" type="button" value="{{json_decode($concept->str)}}">
+                        <span class="label label-primary">
+                            {{json_decode($concept->str)}}
+                        </span>
                 @endforeach
             </div>
-            
+        
         </div>
         
         

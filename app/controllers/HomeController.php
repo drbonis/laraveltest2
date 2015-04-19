@@ -46,7 +46,7 @@ class HomeController extends BaseController {
                 );
                 
                 if(Auth::attempt($userdata)) {
-                    return Redirect::to('user/profile');
+                    return Redirect::to('exam/select');
                 } else {
                     return Redirect::to('login');
                 }
@@ -137,6 +137,31 @@ class HomeController extends BaseController {
                     ));
         }
         
+        public function selectExam() {
+            return View::make('exam.select');
+        }
+        
+        public function showExam() {
+            $i = Input::all();
+            $r = array();
+            $questions_list = json_decode($i['questions_list']);
+            foreach ($questions_list as $question_id) {
+                $r[] = $this->getQuestionWithConcepts($question_id);
+            }
+              
+            /* insert new execution user_id, exam_id ... and get new execution_id*/
+            
+            DB::insert('insert into executions (exam_id, user_id, created_at, updated_at) values (?, 1, now(), now())',array($i['exam_id'])); // pendiente de obtener user_id dinamicamente
+            //$new_execution_id = DB::getPdo()->lastInsertId();
+            
+            return View::make('exam.show', array(
+                "questions"=>$r, 
+                "questions_id_list"=>$questions_list,
+                "exam_id"=>$i['exam_id'], 
+                'execution_id'=>DB::getPdo()->lastInsertId() 
+            ));
+        }
+        
         public function listExam() {
             return View::make('exam.list', array(
                 "user"=>Auth::user()->email,
@@ -144,7 +169,7 @@ class HomeController extends BaseController {
                 ));
             
         }
-        
+        /*
         public function showExam($exam_id) {
 
             // shows the exam
@@ -154,7 +179,7 @@ class HomeController extends BaseController {
                 "exam_id"=>$exam_id
                 ));
         }
-        
+        */
         public function doExam() {
             $answers = Input::all();
             $exam_id = $answers["exam_id"];
@@ -214,7 +239,8 @@ class HomeController extends BaseController {
                         'opt5'=>$r->option5,
                         'numoptions'=>$r->numoptions,
                         'answer'=>$r->answer,
-                        'concepts'=>$r->concepts
+                        'concepts'=>$r->concepts,
+                        'img'=>$r->img
                     )); 
 
         }
@@ -225,6 +251,7 @@ class HomeController extends BaseController {
             Session::put('msg','');
             return View::make('question.edit'
                     ,array(
+                        //'exam_list'=>json_decode($this->getAllExams())
                         'msg'=>$msg,
                         'question_id'=>$r->id,
                         'question'=>$r->question,
@@ -235,7 +262,8 @@ class HomeController extends BaseController {
                         'opt5'=>$r->option5,
                         'numoptions'=>$r->numoptions,
                         'answer'=>$r->answer,
-                        'concepts'=>$r->concepts
+                        'concepts'=>$r->concepts, 
+                        'img'=>$r->img
                        
                     )); 
         }
@@ -243,6 +271,21 @@ class HomeController extends BaseController {
         public function doEditQuestion() {
             $i = Input::all();
             var_dump($i);
+
+            $file = $i['img'];
+ 
+            
+           
+            if($file!=null) {
+                $file_name = time().".".$i['img']->guessExtension();
+                $file->move("img/questions",$file_name);               
+            } else {
+                $file_name = $i['prev_img'];
+            }; 
+                        
+            
+            
+            
             
             DB::table('questions')->where('id',$i['question_id'])->update(array(
                     'question'=>$i['question'],
@@ -251,17 +294,28 @@ class HomeController extends BaseController {
                     'option3'=>$i['option3'],
                     'option4'=>$i['option4'],
                     'option5'=>$i['option5'],
-                    'answer'=>$i['answer']
+                    'answer'=>$i['answer'],
+                    'img'=>$file_name
                     ));
+            DB::table('concepts_questions')->where('question_id',$i['question_id'])->delete();
+            
+            $cui_list = json_decode($i['cui_list_input']);
+            
+            foreach($cui_list as $cui) {
+                DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, created_at, updated_at, direct) values (?, ?, ?, ?, now(), now(), ?)',array($cui->concept_id, $cui->term_id, $i['question_id'], $cui->cui, $cui->direct));
+                
+            }
+            
+            
             return Redirect::to("question/edit/".$i['question_id'])->with('msg','Pregunta actualizada'); 
-             
+          
         }
         
         public function createQuestion() {
             return View::make('question.create',array('exam_list'=>json_decode($this->getAllExams())));
         }
 		
-		public function createQuestionOld() {
+        public function createQuestionOld() {
             return View::make('question.create2');
         }
         
@@ -290,7 +344,7 @@ class HomeController extends BaseController {
             $cui_list = json_decode($i['cui_list_input']);
             
             foreach($cui_list as $cui) {
-                DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, created_at, updated_at) values (?, ?, ?, ?, now(), now())',array($cui->concept_id, $cui->term_id, $new_question_id, $cui->cui));
+                DB::insert('insert into concepts_questions (concept_id, term_id, question_id, cui, created_at, updated_at, direct) values (?, ?, ?, ?, now(), now(), ?)',array($cui->concept_id, $cui->term_id, $new_question_id, $cui->cui, $cui->direct));
                 
             }
              
@@ -301,9 +355,26 @@ class HomeController extends BaseController {
         
         /* API SECTION */
         
+        public function answerQuestion(){
+            $i = Input::all();
+            /*
+             * $i->answer
+             * $i->correct_answer
+             * $i->exam_id
+             * $i->execution_id
+             * $i->user_id
+             * 
+             * table answer id, execution_id, exam_id, question_id, user_id, created_at, updated_at, answered, correct_answer
+             */
+            
+            DB::insert('insert into answers (execution_id, exam_id, question_id, user_id, created_at, updated_at, answered, correct_answer) values (?, ?, ?, ?, now(), now(), ?, ?)',array($i['execution_id'], $i['exam_id'], $i['question_id'], $i['user_id'], $i['answer'], $i['correct_answer']));
+            return json_encode(array('new_answer_id'=>DB::getPdo()->lastInsertId()));
+            
+        }
+        
         
         public function getQuestion($question_id,$json='') {
-            $r = DB::select('select id, question, option1, option2, option3, option4, option5, numoptions, answer from questions where id = ?',array($question_id));
+            $r = DB::select('select id, question, option1, option2, option3, option4, option5, numoptions, answer, img from questions where id = ?',array($question_id));
             return medquizlib::responseFacade($r[0],$json);
             //return json_encode($r[0]);
         }
@@ -311,7 +382,7 @@ class HomeController extends BaseController {
         public function getQuestionWithConcepts($question_id,$json='') {
             $r = json_decode($this->getQuestion($question_id,'json'));
             $r->concepts = array();
-            $concepts_list = DB::select('select cui from concepts_questions where question_id = ?',array($question_id));
+            $concepts_list = DB::select('select id, cui, concept_id, term_id, direct from concepts_questions where question_id = ?',array($question_id));
             if(count($concepts_list)>0){
                 $concepts_added = array();
                 foreach($concepts_list as $cui) {
@@ -319,7 +390,7 @@ class HomeController extends BaseController {
                         $concepts_added[] = $cui->cui;
                         $request = Request::create("concept/str/".$cui->cui."/json", 'GET');
                         $str = Route::dispatch($request)->getContent();
-                        $r->concepts[] = array("cui"=>$cui->cui, "str"=>$str);
+                        $r->concepts[] = array("id"=>$cui->id, "cui"=>$cui->cui, "direct"=>$cui->direct, "str"=>$str, "concept_id"=>$cui->concept_id, "term_id"=>$cui->term_id);
                     }
                     
                 }
@@ -346,3 +417,13 @@ class HomeController extends BaseController {
 
 
 }
+
+
+
+/*
+
+ * Muestra lista de cuantas preguntas contiene cada concepto.
+ * select concepts.id, concepts.str, count(concepts_questions.id) from concepts_questions left join concepts on concepts_questions.concept_id = concepts.id group by concepts_questions.concept_id order by count(concepts_questions.id) desc;
+ * 
+ * 
+ *  */

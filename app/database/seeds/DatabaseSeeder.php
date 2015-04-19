@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder {
                 
                 $this->call('AnswerTableSeeder');
                 
-                //$this->call('ExamTableSeeder'); //integrated now in QuestionTableSeeder
+                $this->call('ExamByconceptTableSeeder'); 
 	}
 
 }

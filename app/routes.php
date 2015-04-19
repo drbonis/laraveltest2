@@ -30,13 +30,22 @@ Route::get('user/profile',array('before'=>'auth','uses'=>'HomeController@showPro
 
 Route::get('user/new',array('uses'=>'HomeController@showNewUser'));
 
+
+/*Exam*/
+
+Route::get('exam/select', array('before'=>'auth', 'uses'=>'HomeController@selectExam'));
+
+Route::post('exam/show', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
+
 Route::get('exam/list', array('before'=>'auth', 'uses'=>'HomeController@listExam'));
 
-Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
-Route::post('exam/show', array('uses'=>'HomeController@doExam'));
+//Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
+//Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 
 Route::get('exam/carrousel/{id}', array('uses'=>'HomeController@showExamCarrousel'));
 Route::post('exam/carrousel', array('uses'=>'HomeController@doExamCarrousel'));
+
+/*end Exam*/
 
 
 Route::get('concept/show/{cui}',array('uses'=>'ConceptController@getConceptDetailsFromCui'));
@@ -56,20 +65,27 @@ Route::get('concept/questions/{cui}/{option?}',array('uses'=>'ConceptController@
 Route::get('concept/answers/{cui}/{user_id}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 
+
+/*question section*/
+
 Route::get('question/show/{question_id}', array('uses'=>'HomeController@showQuestion'));
+
+
 Route::get('question/edit/{question_id}', array('uses'=>'HomeController@editQuestion'));
 Route::post('question/edit',array('uses'=>'HomeController@doEditQuestion'));
+
+
 Route::get('question/delete/concept/{question_id}/{cui}',array('uses'=>'HomeController@removeConceptFromQuestion'));
 
-Route::get('question/create',array('uses'=>'HomeController@createQuestion'));
-Route::post('question/create',array('uses'=>'HomeController@doCreateQuestion'));
+Route::get('question/create',array('before'=>'auth', 'uses'=>'HomeController@createQuestion'));
+Route::post('question/create',array('before'=>'auth', 'uses'=>'HomeController@doCreateQuestion'));
 
 Route::get('conceptdetector',array('uses'=>'HomeController@createQuestionOld'));
 
 
 /*API section*/
 
-Route::get('api/exam/list', array('uses'=>'HomeController@getAllExams'));
-Route::post('api/concept/fromtext', array('uses'=>'HomeController@getConceptsFromText'));
-Route::post('api/question/create', array('uses'=>'HomeController@createQuestionPost'));
-//Route::get('api/concept/ascendants/{a}', array('uses'=>'ConceptController@getAscendantsFromCuiAll'));
+Route::get('api/exam/list', array('before'=>'auth', 'uses'=>'HomeController@getAllExams'));
+Route::post('api/concept/fromtext', array('before'=>'auth', 'uses'=>'HomeController@getConceptsFromText'));
+Route::post('api/question/create', array('before'=>'auth', 'uses'=>'HomeController@createQuestionPost'));
+Route::post('api/question/answer', array('before'=>'auth', 'uses'=>'HomeController@answerQuestion'));
