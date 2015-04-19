@@ -39,6 +39,8 @@ Route::post('exam/show', array('before'=>'auth', 'uses'=>'HomeController@showExa
 
 Route::get('exam/list', array('before'=>'auth', 'uses'=>'HomeController@listExam'));
 
+Route::get('exam/statistics/{exam_id}', array('before'=>'auth', 'uses'=>'HomeController@statisticsExamIndirect'));
+
 //Route::get('exam/show/{id}', array('before'=>'auth', 'uses'=>'HomeController@showExam'));
 //Route::post('exam/show', array('uses'=>'HomeController@doExam'));
 

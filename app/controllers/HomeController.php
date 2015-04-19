@@ -141,6 +141,62 @@ class HomeController extends BaseController {
             return View::make('exam.select');
         }
         
+        public function statisticsExam($exam_id) {
+            $user_id = Auth::user()->id;
+            $statistics_user = DB::select('select answers.exam_id, count(answers.answered) as answered, sum(if(answers.answered = answers.correct_answer,1,0)) as correct, sum(if(answers.answered <> answers.correct_answer, 1, 0)) as incorrect, sum(if(answers.answered = answers.correct_answer,1,0))/count(answers.answered) as percorrect from answers where answers.exam_id = ? and answers.user_id = ?', array($exam_id, $user_id))[0];
+            
+            $statistics_nonuser = DB::select('select answers.exam_id, count(answers.answered) as answered, sum(if(answers.answered = answers.correct_answer,1,0)) as correct, sum(if(answers.answered <> answers.correct_answer, 1, 0)) as incorrect, sum(if(answers.answered = answers.correct_answer,1,0))/count(answers.answered) as percorrect from answers where answers.exam_id = ?', array($exam_id))[0];
+
+            return json_encode(array('exam_id'=>$exam_id, 'user_id'=>$user_id, 'user_statistics'=>array('answered'=>$statistics_user->answered, 'correct'=>$statistics_user->correct, 'incorrect'=>$statistics_user->incorrect, 'percorrect'=>$statistics_user->percorrect), 'nonuser_statistics'=>array('answered'=>$statistics_nonuser->answered, 'correct'=>$statistics_nonuser->correct, 'incorrect'=>$statistics_nonuser->incorrect, 'percorrect'=>$statistics_nonuser->percorrect)));
+
+        }
+
+        public function statisticsExamIndirect($exam_id) {
+            $user_id = Auth::user()->id;
+            
+            //get the list of questions included in the exam_id
+            
+            $questions_list = DB::select('select distinct exams_questions.question_id from exams_questions where exams_questions.exam_id = ?',array($exam_id));
+            
+            //for each question get the number of correct and incorrect questions answered
+            
+            $results = array('exam_id'=>$exam_id, 'user_id'=>$user_id, 'user_statistics'=>array('answered'=>0, 'correct'=>0, 'incorrect'=>0, 'percorrect'=>0), 'nonuser_statistics'=>array('answered'=>0, 'correct'=>0, 'incorrect'=>0, 'percorrect'=>0));
+            
+            foreach($questions_list as $question) {
+
+                $statistics_user = DB::select('select count(answers.answered) as answered, sum(if(answers.answered = answers.correct_answer,1,0)) as correct, sum(if(answers.answered <> answers.correct_answer, 1, 0)) as incorrect from answers where answers.question_id = ? and answers.user_id = ?', array($question->question_id, $user_id))[0];
+
+                $results['user_statistics']['answered'] += $statistics_user->answered;
+                $results['user_statistics']['correct'] += $statistics_user->correct;
+                $results['user_statistics']['incorrect'] += $statistics_user->incorrect;
+                        
+                
+                $statistics_nonuser = DB::select('select count(answers.answered) as answered, sum(if(answers.answered = answers.correct_answer,1,0)) as correct, sum(if(answers.answered <> answers.correct_answer, 1, 0)) as incorrect from answers where answers.question_id = ? and answers.user_id <> ?', array($question->question_id, $user_id))[0];
+                
+                $results['nonuser_statistics']['answered'] += $statistics_nonuser->answered;
+                $results['nonuser_statistics']['correct'] += $statistics_nonuser->correct;
+                $results['nonuser_statistics']['incorrect'] += $statistics_nonuser->incorrect;
+                
+            }
+            
+            if($results['user_statistics']['answered'] > 0) {
+                $results['user_statistics']['percorrect'] = $results['user_statistics']['correct'] / $results['user_statistics']['answered'];
+            }
+            
+            if($results['nonuser_statistics']['answered'] > 0) {
+                $results['nonuser_statistics']['percorrect'] = $results['nonuser_statistics']['correct'] / $results['nonuser_statistics']['answered'];
+            }
+            
+           
+            //var_dump($results);
+            return json_encode($results);
+
+        }
+        
+        
+        
+        
+        
         public function showExam() {
             $i = Input::all();
             $r = array();
