@@ -67,6 +67,7 @@ Route::get('concept/questions/{cui}/{option?}',array('uses'=>'ConceptController@
 Route::get('concept/answers/{cui}/{user_id}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 Route::get('concept/answers/{cui}/{option?}',array('uses'=>'ConceptController@getAnswersFromConceptUser'));
 
+Route::get('concept/statistics/all',array('before'=>'auth', 'uses'=>'HomeController@conceptAllStatistics'));
 
 /*question section*/
 

@@ -194,7 +194,30 @@ class HomeController extends BaseController {
         }
         
         
-        
+        public function conceptAllStatistics() {
+            
+            $user_id = Auth::user()->id;
+            //get all concepts with questions
+            
+            $c = DB::select('select distinct concepts_questions.concept_id as concept_id, count(concepts_questions.id) as count, concepts.str as str from concepts_questions, concepts where concepts.id = concepts_questions.concept_id group by concept_id order by count desc');
+            
+            
+            
+            foreach($c as $index=>$concept) {
+                if($concept->count<30) {
+                    //var_dump($concept);
+                    array_splice($c, $index);
+                    
+                }
+            }
+            
+            
+            foreach($c as $index=>$concept) {
+                var_dump("CONCEPT: ".$concept->concept_id);
+                $q = DB::select('select * from concepts_questions where concepts_questions.concept_id = ?',array($concept->concept_id));
+                var_dump($q);
+            }
+        }
         
         
         public function showExam() {
